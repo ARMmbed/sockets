@@ -20,6 +20,8 @@
 
 using std::memset;
 
+// TODO: actyually implmement something here ...
+
 Socket::Socket() : _sock_fd(-1), _blocking(true), _timeout(1500) {
     
 }
@@ -30,7 +32,7 @@ void Socket::set_blocking(bool blocking, unsigned int timeout) {
 }
 
 int Socket::init_socket(int type) {
-    if (_sock_fd != -1)
+/*    if (_sock_fd != -1)
         return -1;
     
     int fd = lwip_socket(AF_INET, type, 0);
@@ -38,39 +40,39 @@ int Socket::init_socket(int type) {
         return -1;
     
     _sock_fd = fd;
-    return 0;
+    return 0;*/
 }
 
-int Socket::set_option(int level, int optname, const void *optval, socklen_t optlen) {
-    return lwip_setsockopt(_sock_fd, level, optname, optval, optlen);
-}
+//int Socket::set_option(int level, int optname, const void *optval, socklen_t optlen) {
+    // return lwip_setsockopt(_sock_fd, level, optname, optval, optlen);
+//}
 
-int Socket::get_option(int level, int optname, void *optval, socklen_t *optlen) {
-    return lwip_getsockopt(_sock_fd, level, optname, optval, optlen);
-}
+//int Socket::get_option(int level, int optname, void *optval, socklen_t *optlen) {
+    // return lwip_getsockopt(_sock_fd, level, optname, optval, optlen);
+//}
 
-int Socket::select(struct timeval *timeout, bool read, bool write) {
-    fd_set fdSet;
-    FD_ZERO(&fdSet);
-    FD_SET(_sock_fd, &fdSet);
+//int Socket::select(struct timeval *timeout, bool read, bool write) {
+    // fd_set fdSet;
+    // FD_ZERO(&fdSet);
+    // FD_SET(_sock_fd, &fdSet);
     
-    fd_set* readset  = (read ) ? (&fdSet) : (NULL);
-    fd_set* writeset = (write) ? (&fdSet) : (NULL);
+    // fd_set* readset  = (read ) ? (&fdSet) : (NULL);
+    // fd_set* writeset = (write) ? (&fdSet) : (NULL);
     
-    int ret = lwip_select(FD_SETSIZE, readset, writeset, NULL, timeout);
-    return (ret <= 0 || !FD_ISSET(_sock_fd, &fdSet)) ? (-1) : (0);
-}
+    // int ret = lwip_select(FD_SETSIZE, readset, writeset, NULL, timeout);
+    // return (ret <= 0 || !FD_ISSET(_sock_fd, &fdSet)) ? (-1) : (0);
+//}
 
 int Socket::wait_readable(TimeInterval& timeout) {
-    return select(&timeout._time, true, false);
+    // return select(&timeout._time, true, false);
 }
 
 int Socket::wait_writable(TimeInterval& timeout) {
-    return select(&timeout._time, false, true);
+    // return select(&timeout._time, false, true);
 }
 
 int Socket::close(bool shutdown) {
-    if (_sock_fd < 0)
+    /*if (_sock_fd < 0)
         return -1;
     
     if (shutdown)
@@ -78,7 +80,7 @@ int Socket::close(bool shutdown) {
     lwip_close(_sock_fd);
     _sock_fd = -1;
     
-    return 0;
+    return 0;*/
 }
 
 Socket::~Socket() {
@@ -86,6 +88,6 @@ Socket::~Socket() {
 }
 
 TimeInterval::TimeInterval(unsigned int ms) {
-    _time.tv_sec = ms / 1000;
-    _time.tv_usec = (ms - (_time.tv_sec * 1000)) * 1000;
+//    _time.tv_sec = ms / 1000;
+//  _time.tv_usec = (ms - (_time.tv_sec * 1000)) * 1000;
 }

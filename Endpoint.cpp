@@ -20,20 +20,22 @@
 #include <cstring>
 #include <cstdio>
 
+ // TODO: actually implement something here...
+
 Endpoint::Endpoint()  {
     reset_address();
 }
 Endpoint::~Endpoint() {}
 
 void Endpoint::reset_address(void) {
-    std::memset(&_remoteHost, 0, sizeof(struct sockaddr_in));
+    //std::memset(&_remoteHost, 0, sizeof(struct sockaddr_in));
     _ipAddress[0] = '\0';
 }
 
 #include "stdio.h"
 
 int Endpoint::set_address(const char* host, const int port) {
-    reset_address();
+/*    reset_address();
     
     // IP Address
     char address[5];
@@ -58,16 +60,17 @@ int Endpoint::set_address(const char* host, const int port) {
     
     // Set port
     _remoteHost.sin_port = htons(port);
-    
+    */
     return 0;
 }
 
 char* Endpoint::get_address() {
-    if ((_ipAddress[0] == '\0') && (_remoteHost.sin_addr.s_addr != 0))
-            inet_ntoa_r(_remoteHost.sin_addr, _ipAddress, sizeof(_ipAddress));
+/*    if ((_ipAddress[0] == '\0') && (_remoteHost.sin_addr.s_addr != 0))
+            inet_ntoa_r(_remoteHost.sin_addr, _ipAddress, sizeof(_ipAddress));*/
     return _ipAddress;
 }
 
 int   Endpoint::get_port() {
-    return ntohs(_remoteHost.sin_port);
+    //return ntohs(_remoteHost.sin_port);
+    return 0;
 }

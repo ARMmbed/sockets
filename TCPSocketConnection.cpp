@@ -21,113 +21,113 @@
 using std::memset;
 using std::memcpy;
 
-TCPSocketConnection::TCPSocketConnection() :
-        _is_connected(false) {
-}
+// TCPSocketConnection::TCPSocketConnection() :
+//         _is_connected(false) {
+// }
 
-int TCPSocketConnection::connect(const char* host, const int port) {
-    if (init_socket(SOCK_STREAM) < 0)
-        return -1;
+// int TCPSocketConnection::connect(const char* host, const int port) {
+//     if (init_socket(SOCK_STREAM) < 0)
+//         return -1;
     
-    if (set_address(host, port) != 0)
-        return -1;
+//     if (set_address(host, port) != 0)
+//         return -1;
     
-    if (lwip_connect(_sock_fd, (const struct sockaddr *) &_remoteHost, sizeof(_remoteHost)) < 0) {
-        close();
-        return -1;
-    }
-    _is_connected = true;
+//     if (lwip_connect(_sock_fd, (const struct sockaddr *) &_remoteHost, sizeof(_remoteHost)) < 0) {
+//         close();
+//         return -1;
+//     }
+//     _is_connected = true;
     
-    return 0;
-}
+//     return 0;
+// }
 
-bool TCPSocketConnection::is_connected(void) {
-    return _is_connected;
-}
+// bool TCPSocketConnection::is_connected(void) {
+//     return _is_connected;
+// }
 
-int TCPSocketConnection::send(char* data, int length) {
-    if ((_sock_fd < 0) || !_is_connected)
-        return -1;
+// int TCPSocketConnection::send(char* data, int length) {
+//     if ((_sock_fd < 0) || !_is_connected)
+//         return -1;
     
-    if (!_blocking) {
-        TimeInterval timeout(_timeout);
-        if (wait_writable(timeout) != 0)
-            return -1;
-    }
+//     if (!_blocking) {
+//         TimeInterval timeout(_timeout);
+//         if (wait_writable(timeout) != 0)
+//             return -1;
+//     }
     
-    int n = lwip_send(_sock_fd, data, length, 0);
-    _is_connected = (n != 0);
+//     int n = lwip_send(_sock_fd, data, length, 0);
+//     _is_connected = (n != 0);
     
-    return n;
-}
+//     return n;
+// }
 
-// -1 if unsuccessful, else number of bytes written
-int TCPSocketConnection::send_all(char* data, int length) {
-    if ((_sock_fd < 0) || !_is_connected)
-        return -1;
+// // -1 if unsuccessful, else number of bytes written
+// int TCPSocketConnection::send_all(char* data, int length) {
+//     if ((_sock_fd < 0) || !_is_connected)
+//         return -1;
     
-    int writtenLen = 0;
-    TimeInterval timeout(_timeout);
-    while (writtenLen < length) {
-        if (!_blocking) {
-            // Wait for socket to be writeable
-            if (wait_writable(timeout) != 0)
-                return writtenLen;
-        }
+//     int writtenLen = 0;
+//     TimeInterval timeout(_timeout);
+//     while (writtenLen < length) {
+//         if (!_blocking) {
+//             // Wait for socket to be writeable
+//             if (wait_writable(timeout) != 0)
+//                 return writtenLen;
+//         }
         
-        int ret = lwip_send(_sock_fd, data + writtenLen, length - writtenLen, 0);
-        if (ret > 0) {
-            writtenLen += ret;
-            continue;
-        } else if (ret == 0) {
-            _is_connected = false;
-            return writtenLen;
-        } else {
-            return -1; //Connnection error
-        }
-    }
-    return writtenLen;
-}
+//         int ret = lwip_send(_sock_fd, data + writtenLen, length - writtenLen, 0);
+//         if (ret > 0) {
+//             writtenLen += ret;
+//             continue;
+//         } else if (ret == 0) {
+//             _is_connected = false;
+//             return writtenLen;
+//         } else {
+//             return -1; //Connnection error
+//         }
+//     }
+//     return writtenLen;
+// }
 
-int TCPSocketConnection::receive(char* data, int length) {
-    if ((_sock_fd < 0) || !_is_connected)
-        return -1;
+// int TCPSocketConnection::receive(char* data, int length) {
+//     if ((_sock_fd < 0) || !_is_connected)
+//         return -1;
     
-    if (!_blocking) {
-        TimeInterval timeout(_timeout);
-        if (wait_readable(timeout) != 0)
-            return -1;
-    }
+//     if (!_blocking) {
+//         TimeInterval timeout(_timeout);
+//         if (wait_readable(timeout) != 0)
+//             return -1;
+//     }
     
-    int n = lwip_recv(_sock_fd, data, length, 0);
-    _is_connected = (n != 0);
+//     int n = lwip_recv(_sock_fd, data, length, 0);
+//     _is_connected = (n != 0);
     
-    return n;
-}
+//     return n;
+// }
 
-// -1 if unsuccessful, else number of bytes received
-int TCPSocketConnection::receive_all(char* data, int length) {
-    if ((_sock_fd < 0) || !_is_connected)
-        return -1;
+// // -1 if unsuccessful, else number of bytes received
+// int TCPSocketConnection::receive_all(char* data, int length) {
+//     if ((_sock_fd < 0) || !_is_connected)
+//         return -1;
     
-    int readLen = 0;
-    TimeInterval timeout(_timeout);
-    while (readLen < length) {
-        if (!_blocking) {
-            //Wait for socket to be readable
-            if (wait_readable(timeout) != 0)
-                return readLen;
-        }
+//     int readLen = 0;
+//     TimeInterval timeout(_timeout);
+//     while (readLen < length) {
+//         if (!_blocking) {
+//             //Wait for socket to be readable
+//             if (wait_readable(timeout) != 0)
+//                 return readLen;
+//         }
         
-        int ret = lwip_recv(_sock_fd, data + readLen, length - readLen, 0);
-        if (ret > 0) {
-            readLen += ret;
-        } else if (ret == 0) {
-            _is_connected = false;
-            return readLen;
-        } else {
-            return -1; //Connnection error
-        }
-    }
-    return readLen;
-}
+//         int ret = lwip_recv(_sock_fd, data + readLen, length - readLen, 0);
+//         if (ret > 0) {
+//             readLen += ret;
+//         } else if (ret == 0) {
+//             _is_connected = false;
+//             return readLen;
+//         } else {
+//             return -1; //Connnection error
+//         }
+//     }
+//     return readLen;
+// }

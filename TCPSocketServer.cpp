@@ -22,57 +22,57 @@
 using std::memset;
 using std::memcpy;
 
-TCPSocketServer::TCPSocketServer() {
+// TCPSocketServer::TCPSocketServer() {
     
-}
+// }
 
-int TCPSocketServer::bind(int port) {
-    if (init_socket(SOCK_STREAM) < 0)
-        return -1;
+// int TCPSocketServer::bind(int port) {
+//     if (init_socket(SOCK_STREAM) < 0)
+//         return -1;
     
-    struct sockaddr_in localHost;
-    memset(&localHost, 0, sizeof(localHost));
+//     struct sockaddr_in localHost;
+//     memset(&localHost, 0, sizeof(localHost));
     
-    localHost.sin_family = AF_INET;
-    localHost.sin_port = htons(port);
-    localHost.sin_addr.s_addr = INADDR_ANY;
+//     localHost.sin_family = AF_INET;
+//     localHost.sin_port = htons(port);
+//     localHost.sin_addr.s_addr = INADDR_ANY;
     
-    if (lwip_bind(_sock_fd, (const struct sockaddr *) &localHost, sizeof(localHost)) < 0) {
-        close();
-        return -1;
-    }
+//     if (lwip_bind(_sock_fd, (const struct sockaddr *) &localHost, sizeof(localHost)) < 0) {
+//         close();
+//         return -1;
+//     }
     
-    return 0;
-}
+//     return 0;
+// }
 
-int TCPSocketServer::listen(int max) {
-    if (_sock_fd < 0)
-        return -1;
+// int TCPSocketServer::listen(int max) {
+//     if (_sock_fd < 0)
+//         return -1;
     
-    if (lwip_listen(_sock_fd, max) < 0) {
-        close();
-        return -1;
-    }
+//     if (lwip_listen(_sock_fd, max) < 0) {
+//         close();
+//         return -1;
+//     }
     
-    return 0;
-}
+//     return 0;
+// }
 
-int TCPSocketServer::accept(TCPSocketConnection& connection) {
-    if (_sock_fd < 0)
-        return -1;
+// int TCPSocketServer::accept(TCPSocketConnection& connection) {
+//     if (_sock_fd < 0)
+//         return -1;
     
-    if (!_blocking) {
-        TimeInterval timeout(_timeout);
-        if (wait_readable(timeout) != 0)
-            return -1;
-    }
-    connection.reset_address();
-    socklen_t newSockRemoteHostLen = sizeof(connection._remoteHost);
-    int fd = lwip_accept(_sock_fd, (struct sockaddr*) &connection._remoteHost, &newSockRemoteHostLen);
-    if (fd < 0)
-        return -1; //Accept failed
-    connection._sock_fd = fd;
-    connection._is_connected = true;
+//     if (!_blocking) {
+//         TimeInterval timeout(_timeout);
+//         if (wait_readable(timeout) != 0)
+//             return -1;
+//     }
+//     connection.reset_address();
+//     socklen_t newSockRemoteHostLen = sizeof(connection._remoteHost);
+//     int fd = lwip_accept(_sock_fd, (struct sockaddr*) &connection._remoteHost, &newSockRemoteHostLen);
+//     if (fd < 0)
+//         return -1; //Accept failed
+//     connection._sock_fd = fd;
+//     connection._is_connected = true;
     
-    return 0;
-}
+//     return 0;
+// }

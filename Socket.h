@@ -22,13 +22,14 @@
 #include "lwip/netdb.h"
 
 //DNS
-inline struct hostent *gethostbyname(const char *name) {
-  return lwip_gethostbyname(name);
-}
+// TODO: make this work again
+// inline struct hostent *gethostbyname(const char *name) {
+//   return lwip_gethostbyname(name);
+// }
 
-inline int gethostbyname_r(const char *name, struct hostent *ret, char *buf, size_t buflen, struct hostent **result, int *h_errnop) {
-  return lwip_gethostbyname_r(name, ret, buf, buflen, result, h_errnop);
-}
+// inline int gethostbyname_r(const char *name, struct hostent *ret, char *buf, size_t buflen, struct hostent **result, int *h_errnop) {
+//   return lwip_gethostbyname_r(name, ret, buf, buflen, result, h_errnop);
+// }
 
 class TimeInterval;
 
@@ -54,7 +55,7 @@ public:
     \param socklen_t length of the option value
     \return 0 on success, -1 on failure
     */
-    int set_option(int level, int optname, const void *optval, socklen_t optlen);
+    //int set_option(int level, int optname, const void *optval, socklen_t optlen);
     
     /** Get socket options
         \param level     stack level (see: lwip/sockets.h)
@@ -63,7 +64,7 @@ public:
         \param socklen_t length of the option value
         \return 0 on success, -1 on failure
         */
-    int get_option(int level, int optname, void *optval, socklen_t *optlen);
+    //int get_option(int level, int optname, void *optval, socklen_t *optlen);
     
     /** Close the socket
         \param shutdown   free the left-over data in message queues
@@ -98,7 +99,8 @@ public:
     TimeInterval(unsigned int ms);
     
 private:
-    struct timeval _time;
+    // TOOD: this does not work anymore ?!
+    //struct timeval _time;
 };
 
 #endif /* SOCKET_H_ */

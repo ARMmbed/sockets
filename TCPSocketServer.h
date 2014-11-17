@@ -24,29 +24,29 @@
 /** TCP Server.
   */
 class TCPSocketServer : public Socket {
-  public:
-    /** Instantiate a TCP Server.
-    */
-    TCPSocketServer();
+  // public:
+  //   /** Instantiate a TCP Server.
+  //   */
+  //   TCPSocketServer();
     
-    /** Bind a socket to a specific port.
-    \param port The port to listen for incoming connections on.
-    \return 0 on success, -1 on failure.
-    */
-    int bind(int port);
+  //   /** Bind a socket to a specific port.
+  //   \param port The port to listen for incoming connections on.
+  //   \return 0 on success, -1 on failure.
+  //   */
+  //   int bind(int port);
     
-    /** Start listening for incoming connections.
-    \param backlog number of pending connections that can be queued up at any
-                   one time [Default: 1].
-    \return 0 on success, -1 on failure.
-    */
-    int listen(int backlog=1);
+  //   * Start listening for incoming connections.
+  //   \param backlog number of pending connections that can be queued up at any
+  //                  one time [Default: 1].
+  //   \return 0 on success, -1 on failure.
     
-    /** Accept a new connection.
-    \param connection A TCPSocketConnection instance that will handle the incoming connection.
-    \return 0 on success, -1 on failure.
-    */
-    int accept(TCPSocketConnection& connection);
+  //   int listen(int backlog=1);
+    
+  //   /** Accept a new connection.
+  //   \param connection A TCPSocketConnection instance that will handle the incoming connection.
+  //   \return 0 on success, -1 on failure.
+  //   */
+  //   int accept(TCPSocketConnection& connection);
 };
 
 #endif

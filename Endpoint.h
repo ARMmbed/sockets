@@ -56,7 +56,8 @@ public:
 
 protected:
     char _ipAddress[17];
-    struct sockaddr_in _remoteHost;
+    // TODO: this doesn't work anymore
+    // struct sockaddr_in _remoteHost;
 
 };
 
