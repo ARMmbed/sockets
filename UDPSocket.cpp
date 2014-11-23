@@ -17,45 +17,58 @@
  */
 
 #include "Socket/UDPSocket.h"
-
 #include <cstring>
+#include <cstdio>
 
-using std::memset;
+using std::memcpy;
 
-// UDPSocket::UDPSocket() {
-// }
+extern "C" static void temp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, ip_addr_t *addr, u16_t port) {
+    UDPSocket *udps = reinterpret_cast<UDPSocket *>(arg);
+    recv_callback_t cb = udps->getCallback();
+    // TODO: is probably better to copy the data from the socket into a user-supplied buffer
+    // (maybe specified as part of setRecvCallback)
+    // TODO: the code below assumes that the pbuf is not chained; this might not be true for larger ammounts of data
+    if (cb != NULL) {
+        Endpoint remote(addr, port);
+        cb((const uint8_t*)p->payload, p->len, remote);
+    }
+    pbuf_free(p);
+}
 
-// int UDPSocket::init(void) {
-//     return init_socket(SOCK_DGRAM);
-// }
+UDPSocket::UDPSocket(): _pcb(NULL), _recv_cb(NULL) {
+    _pcb = udp_new();
+    udp_recv(_pcb, temp_recv, reinterpret_cast<void*>(this));
+}
 
-// // Server initialization
-// int UDPSocket::bind(int port) {
-//     if (init_socket(SOCK_DGRAM) < 0)
-//         return -1;
-    
-//     struct sockaddr_in localHost;
-//     std::memset(&localHost, 0, sizeof(localHost));
-    
-//     localHost.sin_family = AF_INET;
-//     localHost.sin_port = htons(port);
-//     localHost.sin_addr.s_addr = INADDR_ANY;
-    
-//     if (lwip_bind(_sock_fd, (const struct sockaddr *) &localHost, sizeof(localHost)) < 0) {
-//         close();
-//         return -1;
-//     }
-    
-//     return 0;
-// }
+UDPSocket::~UDPSocket() {
+    close();
+}
+
+int UDPSocket::init(void) {
+    return 0;
+}
+
+// Server initialization
+int UDPSocket::bind(uint16_t port) {
+    udp_bind(_pcb, IP_ADDR_ANY, port);
+    return 0;
+}
+
+int UDPSocket::close() {
+    if (_pcb) {
+        udp_remove(_pcb);
+        _pcb = NULL;
+    }
+    return 0;
+}
 
 // int UDPSocket::join_multicast_group(const char* address) {
 //     struct ip_mreq mreq;
-    
-//     // Set up group address 
+
+//     // Set up group address
 //     mreq.imr_multiaddr.s_addr = inet_addr(address);
 //     mreq.imr_interface.s_addr = htonl(INADDR_ANY);
-    
+
 //     return set_option(IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
 // }
 
@@ -64,31 +77,17 @@ using std::memset;
 //     return set_option(SOL_SOCKET, SO_BROADCAST, &option, sizeof(option));
 // }
 
-// // -1 if unsuccessful, else number of bytes written
-// int UDPSocket::sendTo(Endpoint &remote, char *packet, int length) {
-//     if (_sock_fd < 0)
-//         return -1;
-    
-//     if (!_blocking) {
-//         TimeInterval timeout(_timeout);
-//         if (wait_writable(timeout) != 0)
-//             return 0;
-//     }
-    
-//     return lwip_sendto(_sock_fd, packet, length, 0, (const struct sockaddr *) &remote._remoteHost, sizeof(remote._remoteHost));
-// }
-
-// // -1 if unsuccessful, else number of bytes received
-// int UDPSocket::receiveFrom(Endpoint &remote, char *buffer, int length) {
-//     if (_sock_fd < 0)
-//         return -1;
-    
-//     if (!_blocking) {
-//         TimeInterval timeout(_timeout);
-//         if (wait_readable(timeout) != 0)
-//             return 0;
-//     }
-//     remote.reset_address();
-//     socklen_t remoteHostLen = sizeof(remote._remoteHost);
-//     return lwip_recvfrom(_sock_fd, buffer, length, 0, (struct sockaddr*) &remote._remoteHost, &remoteHostLen);
-// }
+// -1 if unsuccessful, else number of bytes written
+int UDPSocket::sendTo(Endpoint &remote, char *packet, int length) {
+    // TODO: take care of blocking/non-blocking
+    // if (!_blocking) {
+    //     TimeInterval timeout(_timeout);
+    //     if (wait_writable(timeout) != 0)
+    //         return 0;
+    // }
+    // This pbuf is automatically freed by the driver after being transmitted
+    struct pbuf *p_out = pbuf_alloc(PBUF_TRANSPORT, length, PBUF_RAM);
+    memcpy(p_out->payload, packet, length);
+    udp_sendto(_pcb, p_out, &remote._address, remote._port);
+    return length;
+}

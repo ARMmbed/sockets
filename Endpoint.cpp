@@ -15,62 +15,49 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#include "Socket/Socket.h"
-#include "Socket/Endpoint.h"
-#include <cstring>
-#include <cstdio>
 
- // TODO: actually implement something here...
+#include "Socket/Endpoint.h"
+#include <string.h>
 
 Endpoint::Endpoint()  {
     reset_address();
 }
+
 Endpoint::~Endpoint() {}
 
 void Endpoint::reset_address(void) {
-    //std::memset(&_remoteHost, 0, sizeof(struct sockaddr_in));
     _ipAddress[0] = '\0';
+    ip_addr_set_zero(&_address);
+    _port  = 0;
 }
 
-#include "stdio.h"
+int Endpoint::set_address(const char* host, uint16_t port) {
+    reset_address();
 
-int Endpoint::set_address(const char* host, const int port) {
-/*    reset_address();
-    
-    // IP Address
-    char address[5];
-    char *p_address = address;
-    
-    // Dot-decimal notation
-    int result = std::sscanf(host, "%3u.%3u.%3u.%3u",
-        (unsigned int*)&address[0], (unsigned int*)&address[1],
-        (unsigned int*)&address[2], (unsigned int*)&address[3]);
-    
-    if (result != 4) {
-        // Resolve address with DNS
-        struct hostent *host_address = lwip_gethostbyname(host);
-        if (host_address == NULL)
-            return -1; //Could not resolve address
-        p_address = (char*)host_address->h_addr_list[0];
-    }
-    std::memcpy((char*)&_remoteHost.sin_addr.s_addr, p_address, 4);
-    
-    // Address family
-    _remoteHost.sin_family = AF_INET;
-    
-    // Set port
-    _remoteHost.sin_port = htons(port);
-    */
+    // TODO: add dns? This will be an async operation now ...
+    // if (result != 4) {
+    //     // Resolve address with DNS
+    //     struct hostent *host_address = lwip_gethostbyname(host);
+    //     if (host_address == NULL)
+    //         return -1; //Could not resolve address
+    //     p_address = (char*)host_address->h_addr_list[0];
+    // }
+    ipaddr_aton(host, &_address);
+    _port = port;
     return 0;
 }
 
-char* Endpoint::get_address() {
-/*    if ((_ipAddress[0] == '\0') && (_remoteHost.sin_addr.s_addr != 0))
-            inet_ntoa_r(_remoteHost.sin_addr, _ipAddress, sizeof(_ipAddress));*/
+int Endpoint::set_address(ip_addr_t* host, uint16_t port) {
+    ip_addr_set(&_address, host);
+    _port = port;
+    return 0;
+}
+
+const char* Endpoint::get_address() {
+    strcpy(_ipAddress, ipaddr_ntoa(&_address));
     return _ipAddress;
 }
 
-int   Endpoint::get_port() {
-    //return ntohs(_remoteHost.sin_port);
-    return 0;
+uint16_t Endpoint::get_port() {
+    return _port;
 }

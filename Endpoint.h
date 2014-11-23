@@ -18,6 +18,9 @@
 #ifndef ENDPOINT_H
 #define ENDPOINT_H
 
+#include "lwip/ip_addr.h"
+#include <stdint.h>
+
 class UDPSocket;
 
 /**
@@ -30,35 +33,41 @@ public:
     /** IP Endpoint (address, port)
      */
     Endpoint(void);
-    
+
+    Endpoint(ip_addr_t* host, uint16_t port) {
+        set_address(host, port);
+    }
+
     ~Endpoint(void);
-    
-    /** Reset the address of this endpoint
-     */
-    void reset_address(void);
-    
+
     /** Set the address of this endpoint
     \param host The endpoint address (it can either be an IP Address or a hostname that will be resolved with DNS).
     \param port The endpoint port
     \return 0 on success, -1 on failure (when an hostname cannot be resolved by DNS).
      */
-    int  set_address(const char* host, const int port);
-    
+    int set_address(const char* host, uint16_t port);
+
+    int set_address(ip_addr_t* host, uint16_t port);
+
     /** Get the IP address of this endpoint
     \return The IP address of this endpoint.
      */
-    char* get_address(void);
-    
+    const char* get_address(void);
+
     /** Get the port of this endpoint
     \return The port of this endpoint
      */
-    int get_port(void);
+    uint16_t get_port(void);
 
 protected:
-    char _ipAddress[17];
-    // TODO: this doesn't work anymore
-    // struct sockaddr_in _remoteHost;
+    /**
+     * Clear the address stored internally
+     */
+    void reset_address(void);
 
+    char _ipAddress[16];
+    ip_addr_t _address;
+    uint16_t _port;
 };
 
 #endif
