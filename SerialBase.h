@@ -123,7 +123,7 @@ public:
     int write(void *buffer, uint32_t length, uint32_t event, void (*callback)(uint32_t));
     void abort_write();
 
-    int read(void *buffer, uint32_t length, uint32_t event, void (*callback)(uint32_t), uint8_t char_match = 255);
+    int read(void *buffer, uint32_t length, uint32_t event, void (*callback)(uint32_t), uint8_t char_match = SERIAL_RESERVED_CHAR_MATCH);
     void abort_read();
 
 protected:
