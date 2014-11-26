@@ -120,10 +120,31 @@ public:
 
     static void _irq_handler(uint32_t id, SerialIrq irq_type);
 
+    /** Begin asynchronous write. The completition invokes registered TX event callback
+     *
+     *  @param buffer   The buffer where received data will be stored
+     *  @param length   The buffer length
+     *  @param event    The logical OR of TX events
+     *  @param callback The event callback function
+     */
     int write(void *buffer, uint32_t length, uint32_t event, void (*callback)(uint32_t));
+
+    /** Abort the on-going write transfer
+     */
     void abort_write();
 
+    /** Begin asynchronous reading. The completition invokes registred RX event callback.
+     *
+     *  @param buffer     The buffer where received data will be stored
+     *  @param length     The buffer length
+     *  @param event      The logical OR of RX events
+     *  @param callback   The event callback function
+     *  @param char_match The matching character
+     */
     int read(void *buffer, uint32_t length, uint32_t event, void (*callback)(uint32_t), uint8_t char_match = SERIAL_RESERVED_CHAR_MATCH);
+
+    /** Abort the on-going read transfer
+     */
     void abort_read();
 
 protected:

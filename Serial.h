@@ -49,6 +49,9 @@ class Serial : public SerialBase, public Stream {
 public:
     using SerialBase::read;
     using SerialBase::write;
+    using SerialBase::abort_write;
+    using SerialBase::abort_read;
+
     /** Create a Serial port, connected to the specified transmit and receive pins
      *
      *  @param tx Transmit pin
