@@ -6,20 +6,20 @@
 #include "socket_types.h"
 #include "CThunk.h"
 
-class Socket {
+class aSocket {
 protected:
 
-    Socket(handler_t &defaultHandler) :
+    aSocket(handler_t &defaultHandler) :
             _defaultHandler(&defaultHandler)
     {
-        _irq.callback(&Socket::_eventHandler);
+        _irq.callback(&aSocket::_eventHandler);
     }
 
 protected:
     virtual void _eventHandler(void *);
 protected:
     handler_t _defaultHandler;
-    CThunk<Socket> _irq;
+    CThunk<aSocket> _irq;
     socket_t _socket;
 };
 

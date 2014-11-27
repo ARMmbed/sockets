@@ -1,5 +1,5 @@
-#ifndef MBED_UDPSOCKET_H
-#define MBED_UDPSOCKET_H
+#ifndef MBED_UDPaSocket_H
+#define MBED_UDPaSocket_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -7,7 +7,7 @@
 #include "Socket.h"
 
 /* UDP socket class */
-class UDPSocket: public Socket {
+class UDPaSocket: public aSocket {
 public:
     /* Socket Creation API */
     /**
@@ -17,8 +17,8 @@ public:
      * @param[in] port The local port to listen on
      * @param[in] defaultHandler The default handler to use if no transmissions have been initiated or on error
      */
-    UDPSocket(address_t *address, uint16_t port, handler_t &defaultHandler);
-    ~UDPSocket();
+    UDPaSocket(address_t *address, uint16_t port, handler_t &defaultHandler);
+    ~UDPaSocket();
 public:
     /* Socket Communication API */
     /**
@@ -67,4 +67,4 @@ protected:
     handler_t _recvHandler;
 };
 
-#endif // MBED_UDPSOCKET_H
+#endif // MBED_UDPaSocket_H

@@ -1,5 +1,5 @@
-#ifndef MBED_TCPSOCKET_H
-#define MBED_TCPSOCKET_H
+#ifndef MBED_TCPaSocket_H
+#define MBED_TCPaSocket_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -7,10 +7,10 @@
 #include "Socket.h"
 
 /* TCP Socket class */
-class TCPSocket : public Socket{
+class TCPaSocket : public aSocket{
 public:
     /* Object Management */
-    ~TCPSocket();
+    ~TCPaSocket();
 public:
     /* Socket Creation API */
     /**
@@ -29,7 +29,7 @@ public:
      * The default handler is required.  If a construction error is encountered, defaultHandler will be called
      * @param[in] defaultHandler The default handler to use if no transmissions have been initiated or on error
      */
-    TCPSocket(handler_t &defaultHandler);
+    TCPaSocket(handler_t &defaultHandler);
 public:
     /* Connection Management API */
     /**
@@ -101,5 +101,5 @@ protected:
 };
 
 
-#endif // MBED_TCPSOCKET_H
+#endif // MBED_TCPaSocket_H
 
