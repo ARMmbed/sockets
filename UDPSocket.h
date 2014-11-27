@@ -33,15 +33,6 @@ public:
      */
     socket_error_t start_send_to(address_t *address, uint16_t port, buffer_t *buffer, int flags, handler_t &sendHandler);
     /**
-     * Sends a datagram to the specified address.
-     * The sendHandler will be called when the send completes.
-     * @param[in] buffer The buffer to send
-     * @param[in] flags The flags to use for the send.  Supported flags are: MSG_EOR, MSG_OOB.
-     * @param[in] sendHandler The handler to call when the send is complete.  May be the Null Handler.
-     * @return Returns an error code or 0 if the handler was installed and the transfer was started successfully.
-     */
-    socket_error_t start_send(buffer_t *buffer, int flags, handler_t &sendHandler);
-    /**
      * Receives on the UDP socket with no address filtering
      * @param[in] buffer The buffer to receive into
      * @param[in] flags The flags used for receive. Supported flags are: MSG_OOB
@@ -49,17 +40,6 @@ public:
      * @return Returns an error code or 0 if the handler was installed and the transfer was started successfully.
      */
     socket_error_t start_recv(buffer_t *buffer, int flags, handler_t &recvHandler);
-    /**
-     * Receives on the UDP socket with address filtering
-     * Open questions:
-     *  o Should multiple recv_from's be permitted at once?
-     *  o Should a recv be permitted at the same time as a recv_from?
-     * @param[in] buffer The buffer to receive into
-     * @param[in] flags The flags used for receive. Supported flags are: MSG_OOB
-     * @param[in] recvHandler The handler to call when the receive is complete.  May NOT be the Null handler.
-     * @return Returns an error code or 0 if the handler was installed and the transfer was started successfully.
-     */
-    socket_error_t start_recv_from(address_t &address, buffer_t *buffer, int flags, handler_t &recvFromHandler);
     /**
      * Start a receive and a send simultaneously. Useful for command-response protocols.
      * @param[in] address The destination address
@@ -83,10 +63,8 @@ public:
 protected:
     socket_error_t _eventHandler(socket_error_t err, event_t *event);
 protected:
-    socket_t _udp_socket;
     handler_t _sendHandler;
     handler_t _recvHandler;
-
 };
 
 #endif // MBED_UDPSOCKET_H
