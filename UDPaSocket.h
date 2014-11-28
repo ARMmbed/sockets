@@ -17,7 +17,15 @@ public:
      * @param[in] port The local port to listen on
      * @param[in] defaultHandler The default handler to use if no transmissions have been initiated or on error
      */
-    UDPaSocket(address_t *address, uint16_t port, handler_t &defaultHandler);
+    UDPaSocket(handler_t &defaultHandler);
+
+    /**
+     *
+     * @param address
+     * @param port
+     * @return
+     */
+    socket_error_t bind(address_t *address, uint16_t port);
     ~UDPaSocket();
 public:
     /* Socket Communication API */
@@ -53,7 +61,7 @@ public:
      * @return Returns an error code or 0 if the handlers were installed and the transfer was started successfully.
      */
     socket_error_t send_recv(
-            address_t &address,
+            address_t *address,
             uint16_t port,
             buffer_t *txBuffer,
             int txFlags,
