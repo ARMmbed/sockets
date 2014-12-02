@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "socket_types.h"
-#include "Socket.h"
+#include "aSocket.h"
 
 /* UDP socket class */
 class UDPaSocket: public aSocket {
@@ -20,10 +20,11 @@ public:
     UDPaSocket(handler_t &defaultHandler);
 
     /**
-     *
-     * @param address
-     * @param port
-     * @return
+     * Specify the listening port and address for the (server) socket
+     * This is not necessary for a client socket
+     * @param[in] address The internet address to bind (may be 0.0.0.0/INET_ADDR_ANY)
+     * @param[in] port The port to listen on
+     * @return Returns 0 on success or an error code on failure
      */
     socket_error_t bind(address_t *address, uint16_t port);
     ~UDPaSocket();
@@ -69,10 +70,12 @@ public:
             int rxFlags,
             handler_t &sendRecvHandler);
 protected:
-    socket_error_t _eventHandler(socket_error_t err, event_t *event);
+    socket_error_t _eventHandler(socket_error_t err, socket_event_t *event);
 protected:
     handler_t _sendHandler;
     handler_t _recvHandler;
+
+    struct socket_buffer *_send_buffer;
 };
 
 #endif // MBED_UDPaSocket_H

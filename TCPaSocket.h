@@ -97,7 +97,7 @@ public:
 
 protected:
     /* API helper functions */
-    virtual int event_handler(event_t *event, )
+    virtual int event_handler(socket_event_t *event, )
 };
 
 
