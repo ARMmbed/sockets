@@ -10,6 +10,7 @@
 
 #include "lwip/sockets.h"
 #include "lwip/pbuf.h"
+#include "socket_types.h"
 
 struct socket {
     union {
@@ -18,6 +19,7 @@ struct socket {
     } pcb;
     void *handler;
     void *recv_arg;
+    socket_status_t status;
     uint8_t family;
 };
 
