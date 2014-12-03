@@ -6,8 +6,10 @@
  */
 
 #include "socket_api.h"
+#include "socket_buffer.h"
 #include "lwip/sockets.h"
 #include "lwip/udp.h"
+#include "lwip/tcp.h"
 
 #include "socket_types_impl.h"
 
@@ -39,10 +41,27 @@ socket_error_t error_remap(err_t lwip_err)
     case ERR_CLSD:
     case ERR_CONN:
     case ERR_ARG:
-    case ERR_IF:
+    case (ERR_IF):
+    break;
     }
     return err;
 }
+
+//static uint8_t family_remap(socket_proto_family_t family) {
+//    uint8_t lwip_family = 0;
+//    switch (family) {
+//    case SOCKET_DGRAM:
+//        lwip_family = SOCK_DGRAM;
+//        break;
+//    case SOCKET_STREAM:
+//        lwip_family = SOCK_STREAM;
+//        break;
+//    case SOCKET_RAW:
+//        lwip_family = SOCK_RAW;
+//        break;
+//    }
+//    return lwip_family;
+//}
 
 socket_error_t socket_init() {
     return SOCKET_ERROR_NONE;
@@ -53,12 +72,12 @@ socket_error_t socket_create(struct socket *sock, uint8_t family, socket_api_han
     if (sock == NULL)
         return SOCKET_ERROR_NULL_PTR;
     switch (family) {
-    case SOCK_DGRAM:
+    case SOCKET_DGRAM:
         sock->pcb.udp = udp_new();
         if (sock->pcb.udp == NULL)
             return SOCKET_ERROR_BAD_ALLOC;
         break;
-    case SOCK_STREAM:
+    case SOCKET_STREAM:
     default:
         return SOCKET_ERROR_BAD_FAMILY;
     }
@@ -73,35 +92,35 @@ socket_error_t socket_destroy(struct socket *sock)
     if (sock == NULL)
         return SOCKET_ERROR_NULL_PTR;
     switch (sock->family) {
-    case SOCK_DGRAM:
+    case SOCKET_DGRAM:
         udp_remove(sock->pcb.udp);
         break;
-    case SOCK_STREAM:
+    case SOCKET_STREAM:
     default:
         return SOCKET_ERROR_BAD_FAMILY;
     }
     return SOCKET_ERROR_NONE;
 }
 
-socket_error_t socket_connect(struct socket *sock, address_t *address, uint16_t port) {
+socket_error_t socket_connect(struct socket *sock, struct socket_addr *address, uint16_t port) {
     err_t err = ERR_OK;
     switch (sock->family){
-    case SOCK_DGRAM:
-        err = udp_connect(sock->pcb.udp, address, port); break;
-    case SOCK_STREAM:
-        err = tcp_connect(sock->pcb.tcp,address, port, sock->handler); break;
+    case SOCKET_DGRAM:
+        err = udp_connect(sock->pcb.udp, (ip_addr_t *)address, port); break;
+    case SOCKET_STREAM:
+        err = tcp_connect(sock->pcb.tcp, (ip_addr_t *)address, port, sock->handler); break;
     default:
         return SOCKET_ERROR_BAD_FAMILY;
     }
     return error_remap(err);
 }
-socket_error_t socket_bind(struct socket *sock, address_t *address, uint16_t port) {
+socket_error_t socket_bind(struct socket *sock, struct socket_addr *address, uint16_t port) {
     err_t err = ERR_OK;
     switch (sock->family){
-    case SOCK_DGRAM:
-        err = udp_bind(sock->pcb.udp, address, port); break;
-    case SOCK_STREAM:
-        err = tcp_bind(sock->pcb.tcp,address, port); break;
+    case SOCKET_DGRAM:
+        err = udp_bind(sock->pcb.udp, (ip_addr_t *)address, port); break;
+    case SOCKET_STREAM:
+        err = tcp_bind(sock->pcb.tcp, (ip_addr_t *)address, port); break;
     default:
         return SOCKET_ERROR_BAD_FAMILY;
     }
@@ -112,9 +131,9 @@ socket_error_t socket_start_send(struct socket *sock, void *arg, struct socket_b
 {
     err_t err = ERR_OK;
     switch (sock->family) {
-    case SOCK_DGRAM:
-        err = udp_send(sock->pcb.udp, buf); break;
-    case SOCK_STREAM:
+    case SOCKET_DGRAM:
+        err = udp_send(sock->pcb.udp, (struct pbuf *)buf); break;
+    case SOCKET_STREAM:
         // TODO: TCP Send
     default:
         return SOCKET_ERROR_BAD_FAMILY;
@@ -148,7 +167,7 @@ static void recv_free(void *arg, struct udp_pcb *pcb, struct pbuf *p,
     e.i.r.context = s->recv_arg;
     e.i.r.sock = s;
     e.i.r.port = port;
-    e.i.r.src = addr;
+    e.i.r.src = (struct socket_addr *)addr;
     // Assume that the library will free the buffer unless the client
     // overrides the free.
     e.i.r.free_buf = 1;
@@ -169,9 +188,10 @@ socket_error_t socket_start_recv(struct socket *sock, void * arg) {
     if (socket_rx_is_busy(sock)) return SOCKET_ERROR_BUSY;
     sock->recv_arg = arg;
     switch (sock->family) {
-    case SOCK_DGRAM:
-        err = udp_recv(sock->pcb.udp, recv_free, (void *)sock); break;
-    case SOCK_STREAM:
+    case SOCKET_DGRAM:
+        sock->status |= SOCKET_STATUS_RX_BUSY;
+        udp_recv(sock->pcb.udp, recv_free, (void *)sock); break;
+    case SOCKET_STREAM:
         //TODO: TCP receive
     default:
         return SOCKET_ERROR_BAD_FAMILY;
@@ -184,25 +204,27 @@ socket_error_t socket_start_recv(struct socket *sock, void * arg) {
 
 uint8_t socket_is_connected(struct socket *sock) {
     switch (sock->family) {
-    case SOCK_DGRAM:
+    case SOCKET_DGRAM:
         if (sock->pcb.udp->flags & UDP_FLAGS_CONNECTED)
             return 1;
         return 0;
-    case SOCK_STREAM:
+    case SOCKET_STREAM:
         //TODO: TCP is connected
     default:
+        break;
     }
     return 0;
 }
 uint8_t socket_is_bound(struct socket *sock) {
     switch (sock->family) {
-    case SOCK_DGRAM:
+    case SOCKET_DGRAM:
         if (sock->pcb.udp->local_port != 0)
             return 1;
         return 0;
-    case SOCK_STREAM:
+    case SOCKET_STREAM:
         //TODO: TCP is bound
     default:
+        break;
     }
     return 0;
 }
