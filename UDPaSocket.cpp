@@ -60,7 +60,7 @@ UDPaSocket::start_send_to(struct socket_addr *address, uint16_t port, buffer_t *
         if (err) return err;
     }
 
-    _sendHandler = &sendHandler;
+    _sendHandler = sendHandler;
     socket_error_t err = socket_start_send(&_socket, NULL, _send_buffer, 1);
     return err;
 }
@@ -71,7 +71,7 @@ UDPaSocket::start_recv(buffer_t *buffer, int flags, handler_t &recvHandler)
     if( socket_rx_is_busy(&_socket)) {
         return SOCKET_ERROR_BUSY;
     }
-    _recvHandler = &recvHandler;
+    _recvHandler = recvHandler;
     socket_error_t err = socket_start_recv(&_socket, NULL);
     return err;
 }
@@ -96,7 +96,7 @@ UDPaSocket::send_recv(
 }
 
 void UDPaSocket::_eventHandler(void *arg) {
-    socket_event_t * e = arg;
+    socket_event_t * e = (socket_event_t *)arg;
     handler_t handler = _defaultHandler;
     switch(e->event) {
     case SOCKET_EVENT_RX_DONE:
@@ -106,6 +106,8 @@ void UDPaSocket::_eventHandler(void *arg) {
     case SOCKET_EVENT_TX_DONE:
     case SOCKET_EVENT_TX_ERROR:
         handler = (_sendHandler?_sendHandler:_defaultHandler);
+        break;
+    default:
         break;
     }
     handler(arg);
