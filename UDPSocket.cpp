@@ -22,7 +22,7 @@
 
 using std::memcpy;
 
-extern "C" static void temp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, ip_addr_t *addr, u16_t port) {
+extern "C" void temp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, ip_addr_t *addr, u16_t port) {
     UDPSocket *udps = reinterpret_cast<UDPSocket *>(arg);
     recv_callback_t cb = udps->getCallback();
     // TODO: is probably better to copy the data from the socket into a user-supplied buffer
