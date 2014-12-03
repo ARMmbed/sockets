@@ -19,7 +19,7 @@ protected:
     virtual ~aSocket() {}
 
 protected:
-    virtual void _eventHandler(void *);
+    virtual void _eventHandler(void *) = 0;
 protected:
     handler_t _defaultHandler;
     CThunk<aSocket> _irq;
