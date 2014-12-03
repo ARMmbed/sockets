@@ -73,8 +73,8 @@ public:
 protected:
     void _eventHandler(void*);
 protected:
-    handler_t *_sendHandler;
-    handler_t *_recvHandler;
+    handler_t _sendHandler;
+    handler_t _recvHandler;
 
     struct socket_buffer *_send_buffer;
 };
