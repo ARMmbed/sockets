@@ -14,13 +14,14 @@ protected:
     {
         _irq.callback(&aSocket::_eventHandler);
     }
+    virtual ~aSocket() {}
 
 protected:
     virtual void _eventHandler(void *);
 protected:
     handler_t _defaultHandler;
     CThunk<aSocket> _irq;
-    socket_t _socket;
+    struct socket _socket;
 };
 
 
