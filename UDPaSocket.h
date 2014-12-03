@@ -70,7 +70,7 @@ public:
             int rxFlags,
             handler_t &sendRecvHandler);
 protected:
-    socket_error_t _eventHandler(socket_error_t err, socket_event_t *event);
+    void _eventHandler(void*);
 protected:
     handler_t _sendHandler;
     handler_t _recvHandler;
