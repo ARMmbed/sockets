@@ -10,6 +10,7 @@
 
 #include "lwip/sockets.h"
 #include "lwip/pbuf.h"
+#include "lwip/ip_addr.h"
 #include "socket_types.h"
 
 struct socket {
@@ -27,6 +28,9 @@ struct socket_buffer {
     struct pbuf impl;
 };
 
+struct socket_addr {
+    ip_addr_t impl;
+};
 
 socket_error_t socket_error_remap(err_t lwip_err);
 
