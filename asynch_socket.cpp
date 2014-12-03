@@ -67,7 +67,7 @@ socket_error_t socket_init() {
     return SOCKET_ERROR_NONE;
 }
 
-socket_error_t socket_create(struct socket *sock, uint8_t family, socket_api_handler handler)
+socket_error_t socket_create(struct socket *sock, socket_proto_family_t family, socket_api_handler handler)
 {
     if (sock == NULL)
         return SOCKET_ERROR_NULL_PTR;
@@ -82,7 +82,7 @@ socket_error_t socket_create(struct socket *sock, uint8_t family, socket_api_han
         return SOCKET_ERROR_BAD_FAMILY;
     }
     sock->family = family;
-    sock->handler = handler;
+    sock->handler = (void*)handler;
     sock->recv_arg = NULL;
     return SOCKET_ERROR_NONE;
 }
@@ -102,19 +102,19 @@ socket_error_t socket_destroy(struct socket *sock)
     return SOCKET_ERROR_NONE;
 }
 
-socket_error_t socket_connect(struct socket *sock, struct socket_addr *address, uint16_t port) {
+socket_error_t socket_connect(struct socket *sock, const struct socket_addr *address, const uint16_t port) {
     err_t err = ERR_OK;
     switch (sock->family){
     case SOCKET_DGRAM:
         err = udp_connect(sock->pcb.udp, (ip_addr_t *)address, port); break;
     case SOCKET_STREAM:
-        err = tcp_connect(sock->pcb.tcp, (ip_addr_t *)address, port, sock->handler); break;
+//        err = tcp_connect(sock->pcb.tcp, (ip_addr_t *)address, port, (socket_api_handler)sock->handler); break;
     default:
         return SOCKET_ERROR_BAD_FAMILY;
     }
     return error_remap(err);
 }
-socket_error_t socket_bind(struct socket *sock, struct socket_addr *address, uint16_t port) {
+socket_error_t socket_bind(struct socket *sock, const struct socket_addr *address, const uint16_t port) {
     err_t err = ERR_OK;
     switch (sock->family){
     case SOCKET_DGRAM:
@@ -139,9 +139,9 @@ socket_error_t socket_start_send(struct socket *sock, void *arg, struct socket_b
         return SOCKET_ERROR_BAD_FAMILY;
     }
     if(err == ERR_OK) {
-        sock->status |= SOCKET_STATUS_TX_BUSY;
+        sock->status = (socket_status_t)(SOCKET_STATUS_TX_BUSY|(int)sock->status);
         // Note: it looks like lwip sends do not require the buffer to persist.
-        void (*handler)(void *) = sock->handler;
+        socket_api_handler handler = (socket_api_handler)sock->handler;
         socket_event_t e;
         e.event = SOCKET_EVENT_TX_DONE;
         e.i.t.context = arg;
@@ -160,7 +160,7 @@ static void recv_free(void *arg, struct udp_pcb *pcb, struct pbuf *p,
         ip_addr_t *addr, u16_t port)
 {
     struct socket *s = (struct socket *)arg;
-    void (*handler)(void *) = s->handler;
+    socket_api_handler handler = (socket_api_handler)s->handler;
     socket_event_t e;
     e.event = SOCKET_EVENT_RX_DONE;
     e.i.r.buf =  0;
@@ -173,7 +173,7 @@ static void recv_free(void *arg, struct udp_pcb *pcb, struct pbuf *p,
     e.i.r.free_buf = 1;
 
     // Make sure the busy flag is cleared in case the client wants to start another receive
-    s->status &= ~SOCKET_STATUS_RX_BUSY;
+    s->status = (socket_status_t)((int)s->status & ~SOCKET_STATUS_RX_BUSY);
 
     handler((void *)&e);
 
@@ -189,7 +189,7 @@ socket_error_t socket_start_recv(struct socket *sock, void * arg) {
     sock->recv_arg = arg;
     switch (sock->family) {
     case SOCKET_DGRAM:
-        sock->status |= SOCKET_STATUS_RX_BUSY;
+        sock->status = (socket_status_t)((int)sock->status | SOCKET_STATUS_RX_BUSY);
         udp_recv(sock->pcb.udp, recv_free, (void *)sock); break;
     case SOCKET_STREAM:
         //TODO: TCP receive
@@ -197,7 +197,7 @@ socket_error_t socket_start_recv(struct socket *sock, void * arg) {
         return SOCKET_ERROR_BAD_FAMILY;
     }
     if(err == ERR_OK)
-        sock->status |= SOCKET_STATUS_RX_BUSY;
+        sock->status = (socket_status_t)((int)sock->status | SOCKET_STATUS_RX_BUSY);
     return error_remap(err);
 
 }

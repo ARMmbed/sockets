@@ -4,7 +4,7 @@
 #include "socket_api.h"
 #include "socket_buffer.h"
 
-UDPaSocket::UDPaSocket(handler_t &defaultHandler):
+UDPaSocket::UDPaSocket(handler_t defaultHandler):
 /* Store the default handler */
     aSocket(defaultHandler),
 /* Zero the handlers */
@@ -42,7 +42,7 @@ UDPaSocket::~UDPaSocket()
 }
 
 socket_error_t
-UDPaSocket::start_send_to(struct socket_addr *address, uint16_t port, buffer_t *buffer, int flags, handler_t &sendHandler)
+UDPaSocket::start_send_to(const struct socket_addr *address, const uint16_t port, buffer_t *buffer, int flags, handler_t &sendHandler)
 {
     if (socket_tx_is_busy(&_socket))
         return SOCKET_ERROR_BUSY;

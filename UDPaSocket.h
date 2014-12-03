@@ -18,7 +18,7 @@ public:
      * @param[in] port The local port to listen on
      * @param[in] defaultHandler The default handler to use if no transmissions have been initiated or on error
      */
-    UDPaSocket(handler_t &defaultHandler);
+    UDPaSocket(handler_t defaultHandler);
 
     /**
      * Specify the listening port and address for the (server) socket
@@ -41,7 +41,7 @@ public:
      * @param[in] sendHandler The handler to call when the send is complete.  May be the Null Handler.
      * @return Returns an error code or 0 if the handler was installed and the transfer was started successfully.
      */
-    socket_error_t start_send_to(struct socket_addr *address, uint16_t port, buffer_t *buffer, int flags, handler_t &sendHandler);
+    socket_error_t start_send_to(const struct socket_addr *address, const uint16_t port, buffer_t *buffer, int flags, handler_t &sendHandler);
     /**
      * Receives on the UDP socket with no address filtering
      * @param[in] buffer The buffer to receive into
