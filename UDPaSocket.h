@@ -70,6 +70,11 @@ public:
             buffer_t *rxBuffer,
             int rxFlags,
             handler_t &sendRecvHandler);
+
+    // TODO: (CThunk upgrade/Alpha2)
+    socket_event_t * getEvent(){
+        return aSocket::getEvent();
+    }
 protected:
     void _eventHandler(void*);
 protected:

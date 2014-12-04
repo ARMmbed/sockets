@@ -1,3 +1,4 @@
+#include "socket_types_impl.h"
 #include "socket_types.h"
 #include "UDPaSocket.h"
 
@@ -13,7 +14,7 @@ UDPaSocket::UDPaSocket(handler_t defaultHandler):
     _send_buffer(NULL)
 {
     socket_error_t err = socket_init();
-    err = socket_create(&_socket, SOCKET_DGRAM, (void(*)(void *))_irq.entry());
+    err = socket_create(&_socket, SOCKET_DGRAM, (void(*)(void))_irq.entry()); // TODO: (CThunk upgrade/Alpha2)
     if (err != SOCKET_ERROR_NONE) {
         socket_event_t e;
         e.event = SOCKET_EVENT_ERROR;
@@ -96,7 +97,7 @@ UDPaSocket::send_recv(
 }
 
 void UDPaSocket::_eventHandler(void *arg) {
-    socket_event_t * e = (socket_event_t *)arg;
+    socket_event_t * e = getEvent(); // TODO: (CThunk upgrade/Alpha2)
     handler_t handler = _defaultHandler;
     switch(e->event) {
     case SOCKET_EVENT_RX_DONE:

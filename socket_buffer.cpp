@@ -6,8 +6,9 @@
  */
 
 #include "lwip/pbuf.h"
-#include "socket_buffer.h"
 #include "socket_types_impl.h"
+
+#include "socket_buffer.h"
 
 static inline pbuf_type lwip_socket_pool_remap(socket_alloc_pool_t p)
 {

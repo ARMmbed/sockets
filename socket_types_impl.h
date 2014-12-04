@@ -11,17 +11,13 @@
 #include "lwip/sockets.h"
 #include "lwip/pbuf.h"
 #include "lwip/ip_addr.h"
-#include "socket_types.h"
 
-struct socket {
+struct socket_impl {
     union {
         struct tcp_pcb *tcp;
         struct udp_pcb *udp;
     } pcb;
-    void *handler;
     void *recv_arg;
-    socket_status_t status;
-    uint8_t family;
 };
 
 struct socket_buffer {
@@ -31,6 +27,8 @@ struct socket_buffer {
 struct socket_addr {
     ip_addr_t impl;
 };
+
+#include "socket_types.h"
 
 socket_error_t socket_error_remap(err_t lwip_err);
 
