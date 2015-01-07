@@ -1,0 +1,20 @@
+
+{
+    "name": "mbed-net-sockets",
+    "version": "0.0.0",
+    "description": "CMSIS-Core",
+    "keywords": [
+        "cmsis"
+    ],
+    "author": "name <email@arm.com>",
+    "repository": {
+        "url": "git@github.com:ARMmbed/mbed-net-sockets.git",
+        "type": "git"
+    },
+    "homepage": "https://github.com/ARMmbed/mbed-net-sockets",
+    "license": "Apache-2",
+    "dependencies": {},
+    "extraIncludes": ["mbed-net-sockets"],
+    "targetDependencies": {
+    }
+}
