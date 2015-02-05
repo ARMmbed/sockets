@@ -19,7 +19,6 @@
   ],
   "dependencies": {
     "mbed": "ARMmbed/mbed-sdk",
-    "mbed-net-eth" : "ARMmbed/mbed-net-eth#master",
     "mbed-net-socket-abstract" : "ARMmbed/mbed-net-socket-abstract#master"
   },
   "targetDependencies": {
