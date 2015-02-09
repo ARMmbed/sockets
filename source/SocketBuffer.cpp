@@ -51,12 +51,14 @@ _next(NULL), _freeable(freeable), _implAlloc(alloc)
 
 SocketBuffer::~SocketBuffer()
 {
-    if (_sb.type == SOCKET_BUFFER_RAW) {
-        if (_implAlloc && _implAlloc->dealloc) {
-            _implAlloc->dealloc(_implAlloc->context, _sb.impl);
+    if (_implFreeable) {
+        if (_sb.type == SOCKET_BUFFER_RAW) {
+            if (_implAlloc && _implAlloc->dealloc) {
+                _implAlloc->dealloc(_implAlloc->context, _sb.impl);
+            }
+        } else {
+            socket_buf_free(&_sb);
         }
-    } else {
-        socket_buf_free(&_sb);
     }
 }
 
@@ -84,9 +86,6 @@ size_t SocketBuffer::copyOut(void *buf, const size_t size) const
     //
     // size_t   getstr(char* str, size_t size);
 
-    // bool autodel();
-    // void setAutodel(bool del);
-    //
 struct socket_buffer * SocketBuffer::getCBuf()
 {
     return &_sb;
@@ -103,14 +102,16 @@ void * SocketBuffer::getRaw() const
         return socket_buf_get_ptr(&_sb);
     }
 }
-    //
     // void set(void *buf, size_t len);
 void SocketBuffer::set(const struct socket_buffer *buf)
 {
-    //TODO: Use stack's buffer copy to ensure reference counting.
-    _sb.type = buf->type;
-    _sb.impl = &_impl;
-    memcpy(&_impl,buf->impl, sizeof(_impl));
+    if(buf == NULL) {
+        _sb.type = SOCKET_BUFFER_UNINITIALISED;
+        _sb.impl = NULL;
+    } else {
+        _sb.type = buf->type;
+        _sb.impl = buf->impl;
+    }
 }
     //
 void SocketBuffer::setTransferInfo(SocketAddr *addr, const uint16_t port, const handler_t handler, const uint32_t flags)

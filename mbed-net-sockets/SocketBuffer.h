@@ -65,7 +65,9 @@ public:
   SocketBuffer * getNext() const;
 
   bool isFreeable() { return _freeable; }
+  void setImplFreeable(bool freeable) {_implFreeable = freeable;}
   void setImplAlloc(const socket_allocator_t *alloc );
+  bool isImplFreeable() {return _implFreeable;}
 
 protected:
   struct socket_buffer _sb;
@@ -83,7 +85,9 @@ protected:
   handler_t _handler;
 
   bool _freeable;
+  bool _implFreeable;
   const socket_allocator_t * _implAlloc;
+
 public:
     static SocketBuffer * mk(void * buf, const size_t length)
     {

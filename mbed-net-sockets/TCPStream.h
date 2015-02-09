@@ -19,7 +19,7 @@ public:
 
 public:
   socket_error_t connect(SocketAddr *address, const uint16_t port, handler_t onConnect);
-  socket_error_t disconnect();
+  void onDisconnect(handler_t h) {_onDisconnect = h;}
 public:
   socket_error_t start_send(void *buf, const size_t len, const handler_t &sendHandler, const uint32_t flags = 0);
   void flush_send();
@@ -41,6 +41,7 @@ protected:
   handler_t _onSent;
   handler_t _onReceive;
   handler_t _onConnect;
+  handler_t _onDisconnect;
   uint16_t _port;
 
 protected:

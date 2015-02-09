@@ -26,15 +26,16 @@ TCPStream::TCPStream(handler_t defaultHandler):
 
 TCPStream::~TCPStream()
 {
-    socket_error_t err = socket_destroy(&_socket);
-    if (err != SOCKET_ERROR_NONE) {
-        socket_event_t e;
-        e.event = SOCKET_EVENT_ERROR;
-        e.i.e = err;
-        // _defaultHandler(&e); //TODO: CThunk Upgrade
-        _socket.event = &e;
-        _defaultHandler(&e);
+    // Handle any TX buffers
+    SocketBuffer *sb = _txBuf;
+    while(sb != NULL) {
+        SocketBuffer *nsb = sb->getNext();
+        if (sb->isFreeable()) {
+            delete sb;
+        }
+        sb = nsb;
     }
+    socket_destroy(&_socket);
 }
 socket_error_t
 TCPStream::connect(SocketAddr *address, const uint16_t port, handler_t onConnect)
@@ -44,24 +45,6 @@ TCPStream::connect(SocketAddr *address, const uint16_t port, handler_t onConnect
   socket_error_t err = socket_connect(&_socket, address, port);
   return err;
 }
-
-void
-TCPStream::onDNS(socket_event_t *e)
-{
-  struct socket_dns_info *d = &(e->i.d);
-  socket_event_t err_event;
-  socket_error_t err = socket_connect(&_socket, d->addr, _port);
-  if (err != SOCKET_ERROR_NONE) {
-    err_event.event = SOCKET_EVENT_ERROR;
-    err_event.i.e = err;
-    // _defaultHandler(&err_event); //TODO: CThunk argument upgrade
-    _socket.event = &err_event;
-    _defaultHandler(&err_event);
-    _socket.event = e;
-  }
-}
-
-
 
 socket_error_t
 TCPStream::start_send(void *buf, const size_t len, const handler_t &sendHandler, const uint32_t flags)
@@ -103,28 +86,27 @@ void TCPStream::_eventHandler(void *arg) {
     socket_event_t * e = getEvent(); // TODO: (CThunk upgrade/Alpha3)
     switch(e->event) {
     case SOCKET_EVENT_RX_DONE:
+        _rxBuf.setImplFreeable(true);
         _rxBuf.set(&(e->i.r.buf));
-    case SOCKET_EVENT_RX_ERROR:
-        if (_onReceive) {
-          _onReceive(e);
-        } else {
-          _defaultHandler(e);
-        }
+        _onReceive(e);
+        e->i.r.free_buf = _rxBuf.isImplFreeable();
+        _rxBuf.set(NULL);
         break;
     case SOCKET_EVENT_TX_DONE:
-    case SOCKET_EVENT_TX_ERROR:
         if (_txBuf && _txBuf->getHandler()) {
           _txBuf->getHandler()(e);
         } else {
           _defaultHandler(e);
         }
     break;
-    case SOCKET_EVENT_DNS:
-        onDNS(e);
+    case SOCKET_EVENT_CONNECT:
+        _onConnect(e);
+        break;
+    case SOCKET_EVENT_DISCONNECT:
+        _onDisconnect(e);
         break;
     default:
         _defaultHandler(e);
     break;
     }
-    _rxBuf.set(NULL);
 }

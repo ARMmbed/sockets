@@ -21,7 +21,7 @@ socket_event_t * aSocket::getEvent()
 socket_error_t aSocket::resolve(const char* address, SocketAddr *addr, handler_t onDNS)
 {
     _onDNS = onDNS;
-    socket_error_t err = socket_resolve(&_socket, address, addr);
+    socket_error_t err = socket_resolve(&_socket, address, addr->getAddr());
     if (err == SOCKET_ERROR_NONE) {
         socket_event_t event;
         event.event = SOCKET_EVENT_DNS;
@@ -31,4 +31,13 @@ socket_error_t aSocket::resolve(const char* address, SocketAddr *addr, handler_t
         _onDNS(&event);
     }
     return err;
+}
+
+socket_error_t aSocket::close()
+{
+    return socket_close(&_socket);
+}
+void aSocket::abort()
+{
+    return socket_abort(&_socket);
 }

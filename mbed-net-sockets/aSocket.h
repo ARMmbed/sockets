@@ -49,6 +49,8 @@ protected:
     struct socket _socket;
 
 public:
+    virtual socket_error_t close();
+    virtual void abort();
     socket_event_t *getEvent(); // TODO: (CThunk upgrade/Alpha3)
 
     socket_error_t resolve(const char* address, SocketAddr *addr, handler_t onDNS);

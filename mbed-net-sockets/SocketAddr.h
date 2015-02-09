@@ -5,22 +5,26 @@
 #ifndef MBED_SOCKETADDR_H
 #define MBED_SOCKETADDR_H
 
+#include "socket_types.h"
+
 #ifdef __LWIP_IP_ADDR_H__
 #error LWIP ip_addr.h included before SocketAddr.h
 #endif
-
 namespace lwip {
     #include "ipv4/lwip/ip_addr.h"
 };
 
+typedef union {
+    lwip::ip_addr_t lwip;
+} socket_addr_impl_t;
+
 class SocketAddr {
 public:
-    void * getAddr() {return &_addr;}
-    size_t getAddrSize() {return sizeof(_addr);}
+    struct socket_addr * getAddr() {return (struct socket_addr *)(void*)&_impl;}
+    void setAddr(struct socket_addr *addr) { _impl = *(socket_addr_impl_t *)addr; }
+    size_t getAddrSize() {return sizeof(_impl);}
 protected:
-    union {
-        lwip::ip_addr_t lwip;
-    } _addr;
+    socket_addr_impl_t _impl;
 };
 
 #endif // MBED_SOCKETADDR_H
