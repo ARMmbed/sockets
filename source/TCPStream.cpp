@@ -42,7 +42,7 @@ TCPStream::connect(SocketAddr *address, const uint16_t port, handler_t onConnect
 {
   _onConnect = onConnect;
   _port = port;
-  socket_error_t err = socket_connect(&_socket, address, port);
+  socket_error_t err = socket_connect(&_socket, address->getAddr(), port);
   return err;
 }
 

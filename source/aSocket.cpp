@@ -26,7 +26,8 @@ socket_error_t aSocket::resolve(const char* address, SocketAddr *addr, handler_t
         socket_event_t event;
         event.event = SOCKET_EVENT_DNS;
         event.i.d.domain = address;
-        event.i.d.addr = *addr->getAddr();
+        event.i.d.addr.type = addr->getAddr()->type;
+        event.i.d.addr.impl = addr->getImpl();
         event.i.d.sock = &_socket;
         _onDNS(&event);
     }
