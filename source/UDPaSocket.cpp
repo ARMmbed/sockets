@@ -1,3 +1,7 @@
+/*
+ * PackageLicenseDeclared: Apache-2.0
+ * Copyright 2015 ARM Holdings PLC
+ */
 #include "socket_types.h"
 #include "UDPaSocket.h"
 
@@ -5,17 +9,17 @@
 #include "socket_buffer.h"
 #include "SocketBuffer.h"
 
-UDPaSocket::UDPaSocket(handler_t defaultHandler, const socket_allocator_t *alloc):
+UDPaSocket::UDPaSocket(handler_t defaultHandler, socket_stack_t stack, const socket_allocator_t *alloc):
 /* Store the default handler */
-    aSocket(defaultHandler),
+    aSocket(defaultHandler, stack),
 /* Zero the handlers */
     _recvHandler(NULL),
 /* Zero the buffer pointers */
     _txBuf(NULL)
 {
     _alloc = alloc;
-    socket_error_t err = socket_init();
-    err = socket_create(&_socket, SOCKET_DGRAM, (void(*)(void))_irq.entry()); // TODO: (CThunk upgrade/Alpha2)
+    socket_error_t err = _socket.api->init();
+    err = _socket.api->create(&_socket, SOCKET_DGRAM, (void(*)(void))_irq.entry()); // TODO: (CThunk upgrade/Alpha2)
     if (err != SOCKET_ERROR_NONE) {
         socket_event_t e;
         e.event = SOCKET_EVENT_ERROR;
@@ -28,13 +32,13 @@ UDPaSocket::UDPaSocket(handler_t defaultHandler, const socket_allocator_t *alloc
 socket_error_t
 UDPaSocket::bind(SocketAddr *address, uint16_t port)
 {
-    socket_error_t err = socket_bind(&_socket, address->getAddr(), port);
+    socket_error_t err = _socket.api->bind(&_socket, address->getAddr(), port);
     return err;
 }
 
 UDPaSocket::~UDPaSocket()
 {
-    socket_error_t err = socket_destroy(&_socket);
+    socket_error_t err = _socket.api->destroy(&_socket);
     if (err != SOCKET_ERROR_NONE) {
         socket_event_t e;
         e.event = SOCKET_EVENT_ERROR;
@@ -42,28 +46,6 @@ UDPaSocket::~UDPaSocket()
         _defaultHandler(&e);
     }
 }
-
-// socket_error_t
-// UDPaSocket::start_send_to(const struct socket_addr *address, const uint16_t port, buffer_t *buffer, uint32_t flags, handler_t &sendHandler)
-// {
-//     if (socket_tx_is_busy(&_socket))
-//         return SOCKET_ERROR_BUSY;
-//     // TODO: need better support for queuing datagrams
-//     if (_send_buffer) {
-//         socket_error_t err = socket_buf_try_free(_send_buffer);
-//         if (err != SOCKET_ERROR_NONE) return err;
-//         _send_buffer = NULL;
-//     }
-//     _send_buffer = socket_buf_alloc(buffer->length, SOCKET_ALLOC_POOL_BEST);
-//     if (_send_buffer == NULL) return SOCKET_ERROR_BAD_ALLOC;
-//
-//     socket_error_t err = socket_connect(&_socket, address, port);
-//     if (err) return err;
-//
-//     _sendHandler = sendHandler;
-//     err = socket_start_send_buf(&_socket, _send_buffer, flags);
-//     return err;
-// }
 
 socket_error_t
 UDPaSocket::start_send_to(SocketAddr *addr, const uint16_t port, const void *buffer, const size_t length, const int flags, handler_t &sendHandler)
@@ -89,9 +71,9 @@ UDPaSocket::start_send_to(SocketBuffer *sb) {
     // TODO: Make sure the correct buffer is used.
     if (_txBuf == NULL) {
         _txBuf = sb;
-        socket_error_t err = socket_connect(&_socket, sb->getAddr()->getAddr(), sb->getPort());
+        socket_error_t err = _socket.api->connect(&_socket, sb->getAddr()->getAddr(), sb->getPort());
         if (err) return err;
-        err = socket_start_send(&_socket, sb->getCBuf(), &_socket);
+        err = _socket.api->start_send(&_socket, sb->getCBuf(), &_socket);
         return err;
     } else {
         SocketBuffer *next = _txBuf;
@@ -106,11 +88,11 @@ UDPaSocket::start_send_to(SocketBuffer *sb) {
 socket_error_t
 UDPaSocket::start_recv(handler_t &recvHandler)
 {
-    if( socket_rx_is_busy(&_socket)) {
+    if( _socket.api->rx_busy(&_socket)) {
         return SOCKET_ERROR_BUSY;
     }
     _recvHandler = recvHandler;
-    socket_error_t err = socket_start_recv(&_socket);
+    socket_error_t err = _socket.api->start_recv(&_socket);
     return err;
 }
 

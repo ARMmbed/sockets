@@ -22,7 +22,7 @@ public:
      * @param[in] port The local port to listen on
      * @param[in] defaultHandler The default handler to use if no transmissions have been initiated or on error
      */
-    UDPaSocket(handler_t defaultHandler, const socket_allocator_t *alloc);
+    UDPaSocket(handler_t defaultHandler, socket_stack_t stack, const socket_allocator_t *alloc);
 
     /**
      * Specify the listening port and address for the (server) socket

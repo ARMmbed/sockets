@@ -4,24 +4,15 @@
 #include "socket_api.h"
 #include "socket_buffer.h"
 
-TCPStream::TCPStream(handler_t defaultHandler):
+TCPStream::TCPStream(handler_t defaultHandler, const socket_stack_t stack):
 /* Store the default handler */
-    TCPAsynch(defaultHandler),
+    TCPAsynch(defaultHandler, stack),
 /* Zero the handlers */
     _onSent(NULL), _onReceive(NULL), _onConnect(NULL),
 /* Zero the buffer pointers */
     _txBuf(NULL)
 {
-    socket_error_t err = socket_init();
-    err = socket_create(&_socket, SOCKET_STREAM, (void(*)(void))_irq.entry()); // TODO: (CThunk upgrade/Alpha3)
-    if (err != SOCKET_ERROR_NONE) {
-        socket_event_t e;
-        e.event = SOCKET_EVENT_ERROR;
-        e.i.e = err;
-        // _defaultHandler(&e); //TODO: CThunk argument upgrade
-        _socket.event = &e;
-        _defaultHandler(&e);
-    }
+    //NOTE: _socket is initialized by TCPAsynch.
 }
 
 TCPStream::~TCPStream()
@@ -35,28 +26,28 @@ TCPStream::~TCPStream()
         }
         sb = nsb;
     }
-    socket_destroy(&_socket);
+    _socket.api->destroy(&_socket);
 }
 socket_error_t
 TCPStream::connect(SocketAddr *address, const uint16_t port, handler_t onConnect)
 {
   _onConnect = onConnect;
   _port = port;
-  socket_error_t err = socket_connect(&_socket, address->getAddr(), port);
+  socket_error_t err = _socket.api->connect(&_socket, address->getAddr(), port);
   return err;
 }
 
 socket_error_t
 TCPStream::start_send(void *buf, const size_t len, const handler_t &sendHandler, const uint32_t flags)
 {
-    if (!socket_is_connected(&_socket)) return SOCKET_ERROR_NO_CONNECTION;
+    if (!_socket.api->is_connected(&_socket)) return SOCKET_ERROR_NO_CONNECTION;
 
     SocketBuffer *sb = getBuffer(buf, len);
     sb->setHandler(sendHandler);
     if (_txBuf == NULL) {
       _txBuf = sb;
       _txBuf->setFlags(flags);
-      socket_error_t err = socket_start_send(&_socket, _txBuf->getCBuf(), &_socket);
+      socket_error_t err = _socket.api->start_send(&_socket, _txBuf->getCBuf(), &_socket);
       return err;
     }
     SocketBuffer * b = _txBuf;
@@ -68,11 +59,11 @@ TCPStream::start_send(void *buf, const size_t len, const handler_t &sendHandler,
 socket_error_t
 TCPStream::start_recv(handler_t &recvHandler)
 {
-    if( socket_rx_is_busy(&_socket)) {
+    if( _socket.api->rx_busy(&_socket)) {
         return SOCKET_ERROR_BUSY;
     }
     _onReceive = recvHandler;
-    socket_error_t err = socket_start_recv(&_socket);
+    socket_error_t err = _socket.api->start_recv(&_socket);
     return err;
 }
 

@@ -1,3 +1,7 @@
+/*
+ * PackageLicenseDeclared: Apache-2.0
+ * Copyright 2015 ARM Holdings PLC
+ */
 #ifndef MBED_ASOCKET_H
 #define MBED_ASOCKET_H
 
@@ -27,21 +31,19 @@ namespace lwip {
 class aSocket {
 protected:
 
-    aSocket(handler_t &defaultHandler) :
-        _defaultHandler(defaultHandler), _irq(this), _event(NULL)
-    {
-        _socket.impl = &_impl;
-        _irq.callback(&aSocket::_nvEventHandler);
-    }
+    aSocket(handler_t &defaultHandler, const socket_stack_t stack);
     virtual ~aSocket() {}
 
 protected:
     virtual void _eventHandler(void *) = 0;
+    bool error_check(socket_error_t err);
+
 protected:
     handler_t _defaultHandler;
     handler_t _onDNS;
     CThunk<aSocket> _irq;
     SocketAddr _remoteAddr;
+    SocketAddr _localAddr;
     union {
         struct lwip::tcp_pcb lwip_tcp;
         lwip::udp_pcb lwip_udp;
@@ -53,7 +55,8 @@ public:
     virtual void abort();
     socket_event_t *getEvent(); // TODO: (CThunk upgrade/Alpha3)
 
-    socket_error_t resolve(const char* address, SocketAddr *addr, handler_t onDNS);
+    socket_error_t resolve(const char* address, handler_t onDNS);
+
 
     void setAllocator(const socket_allocator_t *alloc) {
         _alloc = alloc;

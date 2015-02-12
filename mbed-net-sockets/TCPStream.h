@@ -14,7 +14,7 @@
 class TCPStream: public TCPAsynch {
 public:
   /* Socket Creation API */
-  TCPStream(handler_t defaultHandler);
+  TCPStream(handler_t defaultHandler, const socket_stack_t stack);
   ~TCPStream();
 
 public:

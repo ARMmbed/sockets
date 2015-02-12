@@ -20,10 +20,11 @@ typedef union {
 
 class SocketAddr {
 public:
-    struct socket_addr * getAddr() {return &_addr;}
-    void * getImpl() {return _addr.impl;}
-    void setAddr(struct socket_addr *addr);
-    size_t getAddrSize() {return sizeof(_impl);}
+    const struct socket_addr * getAddr() const {return &_addr;}
+    void * getImpl() {return &_impl;}
+    void setAddr(const struct socket_addr *addr);
+    void setAddr(const SocketAddr *addr);
+    size_t getAddrSize() const {return sizeof(_impl);}
 protected:
     struct socket_addr _addr;
     socket_addr_impl_t _impl;
