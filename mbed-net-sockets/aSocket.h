@@ -10,13 +10,13 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "socket_types.h"
+
 #include "CThunk.h"
 
-// Namespaced elements
 #include "SocketBuffer.h"
-
 #include "SocketAddr.h"
 
+// Namespaced elements
 #ifdef __LWIP_SOCKETS_H__
 #error lwip/sockets.h already included
 #endif
@@ -66,7 +66,7 @@ public:
         if (_alloc == NULL || _socket.stack == SOCKET_STACK_UNINIT || _socket.stack > SOCKET_STACK_MAX) {
             return NULL;
         }
-        return SocketBuffer::mk(len, socket_buf_stack_to_buf(_socket.stack), _alloc);
+        return SocketBuffer::mk(len, socket_buf_stack_to_type(_socket.stack), _alloc);
     }
     virtual SocketBuffer * getBuffer(const size_t len, const socket_buffer_type_t type)
     {

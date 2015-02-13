@@ -4,16 +4,20 @@
 #include "SocketBuffer.h"
 #include "socket_buffer.h"
 
+#define min(a,b) ((a)<(b)?(a):(b))
+
 SocketBuffer::SocketBuffer(const bool freeable) :
 _next(NULL), _freeable(freeable), _implAlloc(NULL)
 {
     _sb.impl = &_impl;
+    _sb.api = NULL;
 }
 SocketBuffer::SocketBuffer(void * buf, const size_t length, const bool freeable):
 _next(NULL), _freeable(freeable), _implAlloc(NULL)
 {
     _sb.type = SOCKET_BUFFER_RAW;
     _sb.impl = &_impl;
+    _sb.api = NULL;
     _impl.raw.buf = buf;
     _impl.raw.size = length;
     _impl.raw.pos = 0;
@@ -40,12 +44,14 @@ _next(NULL), _freeable(freeable), _implAlloc(alloc)
 {
     _sb.impl = &_impl;
     _sb.type = type;
+    _sb.api  = socket_buf_type_to_api(type);
     if (type == SOCKET_BUFFER_RAW) {
         _impl.raw.buf = _implAlloc->alloc(_implAlloc->context, length);
         _impl.raw.size = length;
         // TODO: EMEM error check
     } else {
-        socket_buf_alloc(length, SOCKET_ALLOC_POOL_BEST, &_sb);
+        assert(_sb.api);
+        _sb.api->alloc(length, SOCKET_ALLOC_POOL_BEST, &_sb);
     }
 }
 
@@ -57,23 +63,52 @@ SocketBuffer::~SocketBuffer()
                 _implAlloc->dealloc(_implAlloc->context, _sb.impl);
             }
         } else {
-            socket_buf_free(&_sb);
+            assert(_sb.api);
+            _sb.api->free(&_sb);
         }
     }
 }
 
 size_t SocketBuffer::size()
 {
-    return socket_buf_get_size(&_sb);
+    if (_sb.type == SOCKET_BUFFER_RAW) {
+        return ((struct socket_rawbuf *)_sb.impl)->size;
+    }
+    assert(_sb.api);
+    return _sb.api->get_size(&_sb);
 }
-size_t SocketBuffer::copyIn(const void *buf, const size_t size) {
-    socket_error_t err = socket_copy_from_user(&_sb, buf, size);
+size_t SocketBuffer::copyIn(const void *buf, const size_t size)
+{
+    if (buf == NULL) {
+        return 0;
+    }
+    if (_sb.type == SOCKET_BUFFER_RAW) {
+        struct socket_rawbuf *rb = (struct socket_rawbuf *)_sb.impl;
+        assert(rb);
+        assert(rb->buf);
+        memcpy(rb->buf, buf, min(rb->size,size));
+        return SOCKET_ERROR_NONE;
+    }
+    assert(_sb.api);
+    socket_error_t err = _sb.api->u2b(&_sb, buf, size);
     assert(err == SOCKET_ERROR_NONE);
-    return size;
+    return (err == SOCKET_ERROR_NONE) ? size : 0;
 }
 size_t SocketBuffer::copyOut(void *buf, const size_t size) const
 {
-    return socket_copy_to_user(buf, &_sb, size);
+    if (buf == NULL) {
+        return 0;
+    }
+    if (_sb.type == SOCKET_BUFFER_RAW) {
+        struct socket_rawbuf *rb = (struct socket_rawbuf *)_sb.impl;
+        assert(rb);
+        assert(rb->buf);
+        memcpy(buf, rb->buf, min(rb->size,size));
+        return SOCKET_ERROR_NONE;
+    }
+    assert(_sb.api);
+    size_t n = _sb.api->b2u(buf, &_sb, size);
+    return n;
 }
 
     // uint32_t getu32();
@@ -99,7 +134,8 @@ void * SocketBuffer::getRaw() const
     if (_sb.type == SOCKET_BUFFER_RAW){
         return _impl.raw.buf;
     } else {
-        return socket_buf_get_ptr(&_sb);
+        assert(_sb.api);
+        return _sb.api->get_ptr(&_sb);
     }
 }
     // void set(void *buf, size_t len);
@@ -108,9 +144,11 @@ void SocketBuffer::set(const struct socket_buffer *buf)
     if(buf == NULL) {
         _sb.type = SOCKET_BUFFER_UNINITIALISED;
         _sb.impl = NULL;
+        _sb.api = NULL;
     } else {
         _sb.type = buf->type;
         _sb.impl = buf->impl;
+        _sb.api = buf->api;
     }
 }
     //
