@@ -9,7 +9,7 @@
 #include "socket_types.h"
 #include "TCPAsynch.h"
 #include "buffer.h"
-#include "EventHandler.h"
+#include "CThunk.h"
 
 class TCPListener: protected TCPAsynch{
 public:
@@ -28,7 +28,7 @@ protected:
   void _eventHandler(void*);
 
 protected:
-    EventHandler _onAccept;
+    CThunk<TCPListener> _onAccept;
 }
 
 #endif // MBED_TCPListener_H

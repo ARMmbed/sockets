@@ -2,14 +2,14 @@
  * PackageLicenseDeclared: Apache-2.0
  * Copyright 2015 ARM Holdings PLC
  */
-#include <new>
 #include "TCPListener.h"
 #include "socket_api.h"
 
 TCPListener::TCPListener(handler_t defaultHandler, const socket_stack_t stack) :
     TCPAsynch(defaultHandler, stack),
+    _onIncomming(NULL)
 {
-
+    _onIncomming =
 }
 TCPListener::~TCPListener()
 {
@@ -41,7 +41,4 @@ TCPStream * TCPListener::accept(handler_t defaultHandler)
  * 1) Use new to create a socket.
  * 2) Pass in an allocator to create a socket
  * 3) Pass a pool of memory to the TCP Server on creation and allocate out of the pool
- *
- * Problems: TCP Stream events need to be routed through TCP server so
- * that onDisconnect can tear down the TCP Stream after the onDisconnect handler
- * has been called
+ */
