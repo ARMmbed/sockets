@@ -16,75 +16,44 @@
 #include "SocketBuffer.h"
 #include "SocketAddr.h"
 
-// Namespaced elements
-#ifdef __LWIP_SOCKETS_H__
-#error lwip/sockets.h already included
-#endif
-
-namespace lwip {
-    #include "lwip/netif.h"
-    #include "lwip/sockets.h"
-    #include "lwip/tcp.h"
-    #include "lwip/udp.h"
-};
-
 class aSocket {
 protected:
-
     aSocket(handler_t &defaultHandler, const socket_stack_t stack);
-    virtual ~aSocket() {}
-
-protected:
-    virtual void _eventHandler(void *) = 0;
-    bool error_check(socket_error_t err);
-
-protected:
-    handler_t _defaultHandler;
-    handler_t _onDNS;
-    CThunk<aSocket> _irq;
-    SocketAddr _remoteAddr;
-    SocketAddr _localAddr;
-    union {
-        struct lwip::tcp_pcb lwip_tcp;
-        lwip::udp_pcb lwip_udp;
-    } _impl;
-    struct socket _socket;
+    virtual ~aSocket();
 
 public:
-    virtual socket_error_t close();
-    virtual void abort();
     socket_event_t *getEvent(); // TODO: (CThunk upgrade/Alpha3)
 
     socket_error_t resolve(const char* address, handler_t onDNS);
 
+    virtual socket_error_t open(const socket_address_family_t af, const socket_proto_family_t pf);
 
-    void setAllocator(const socket_allocator_t *alloc) {
-        _alloc = alloc;
-    }
+    virtual void setOnError(handler_t onError);
 
-    virtual SocketBuffer * getBuffer(const size_t len) {
-        if (_alloc == NULL || _socket.stack == SOCKET_STACK_UNINIT || _socket.stack > SOCKET_STACK_MAX) {
-            return NULL;
-        }
-        return SocketBuffer::mk(len, socket_buf_stack_to_type(_socket.stack), _alloc);
-    }
-    virtual SocketBuffer * getBuffer(const size_t len, const socket_buffer_type_t type)
-    {
-        if (_alloc == NULL) {
-            return NULL;
-        }
-        return SocketBuffer::mk(len, type, _alloc);
-    }
-    virtual SocketBuffer * getBuffer(const size_t len, const socket_buffer_type_t type, const socket_allocator_t * alloc) {
-        return SocketBuffer::mk(len, type, alloc);
-    }
-    virtual SocketBuffer * getBuffer(void *buf, const size_t len) {
-        return SocketBuffer::mk(buf, len);
-    }
-    virtual SocketBuffer * getBuffer(const struct socket_buffer *sb) {
-        return SocketBuffer::mk(sb);
-    }
+    virtual void setOnReadable(handler_t onReadable);
+    virtual size_t recv(void * buf, size_t len);
+    virtual size_t recv_from(void * buf, size_t len, SocketAddr *remote_addr, uint16_t *remote_port);
 
+    virtual void setOnWritable(handler_t onWritable);
+    virtual size_t send(void * buf, size_t len);
+    virtual size_t send_to(void * but, size_t len, SocketAddr *remote_addr, uint16_t remote_port, );
+
+    virtual socket_error_t close();
+    virtual void abort();
+
+protected:
+    virtual void _eventHandler(struct socket_event *ev);
+    bool error_check(socket_error_t err);
+
+protected:
+    // TODO: Should the DNS handler be static?
+    handler_t _onDNS;
+    handler_t _onError;
+    handler_t _onReadable;
+    handler_t _onWritable;
+
+    CThunk<aSocket> _irq;
+    struct socket _socket;
 private:
     socket_event_t *_event; // TODO: (CThunk upgrade/Alpha3)
     void _nvEventHandler(void * arg);
