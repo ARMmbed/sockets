@@ -35,8 +35,7 @@ public:
      * @param[in] port The port to listen on
      * @return Returns 0 on success or an error code on failure
      */
-    socket_error_t bind(SocketAddr *address, uint16_t port);
-    socket_error_t connect(SocketAddr *address, uint16_t port);
+    socket_error_t connect(const SocketAddr *address, const uint16_t port);
     ~UDPaSocket();
 
 };

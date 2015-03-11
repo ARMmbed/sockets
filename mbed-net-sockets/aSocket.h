@@ -26,6 +26,8 @@ public:
     socket_error_t resolve(const char* address, handler_t onDNS);
 
     virtual socket_error_t open(const socket_address_family_t af, const socket_proto_family_t pf);
+    virtual socket_error_t bind(const SocketAddr *address, const uint16_t port);
+    virtual socket_error_t bind(const char *address, const uint16_t port);
 
     virtual void setOnError(handler_t onError);
 
@@ -33,7 +35,7 @@ public:
     virtual socket_error_t recv(void * buf, size_t *len);
     virtual socket_error_t recv_from(void * buf, size_t *len, SocketAddr *remote_addr, uint16_t *remote_port);
 
-    virtual void setOnWritable(handler_t onWritable);
+    virtual void setOnSent(handler_t onSent);
     virtual socket_error_t send(const void * buf, const size_t len);
     virtual socket_error_t send_to(const void * buf, const size_t len, const SocketAddr *remote_addr, uint16_t remote_port);
 
@@ -52,7 +54,7 @@ protected:
     handler_t _onDNS;
     handler_t _onError;
     handler_t _onReadable;
-    handler_t _onWritable;
+    handler_t _onSent;
 
     CThunk<aSocket> _irq;
     struct socket _socket;

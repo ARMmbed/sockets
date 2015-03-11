@@ -6,13 +6,12 @@
 #include "socket_api.h"
 
 class TCPAsynch: public aSocket {
-public:
-    socket_error_t bind(const char *addr, uint16_t port);
-    socket_error_t bind(const SocketAddr *addr, uint16_t port);
 protected:
-  TCPAsynch(handler_t defaultHandler, const socket_stack_t stack);
+  TCPAsynch(const socket_stack_t stack);
   ~TCPAsynch();
 
+public:
+  socket_error_t open(const socket_address_family_t af);
 protected:
   static Ticker _ticker;
   static handler_t _tick_handler;

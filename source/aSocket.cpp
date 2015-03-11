@@ -7,7 +7,7 @@
 #include "cmsis.h"
 
 aSocket::aSocket(const socket_stack_t stack) :
-	_onDNS(NULL), _onError(NULL), _onReadable(NULL), _onWritable(NULL),
+	_onDNS(NULL), _onError(NULL), _onReadable(NULL), _onSent(NULL),
 	_irq(this), _event(NULL)
 {
     _irq.callback(&aSocket::_nvEventHandler);
@@ -60,8 +60,8 @@ void aSocket::_eventHandler(struct socket_event *ev)
     		_onReadable(NULL);
     	break;
     case SOCKET_EVENT_TX_DONE:
-    	if (_onWritable)
-    		_onWritable(NULL);
+    	if (_onSent)
+    		_onSent(NULL);
     	break;
     case SOCKET_EVENT_DNS:
     	if (_onDNS)
@@ -88,10 +88,10 @@ void aSocket::setOnReadable(handler_t onReadable)
 	_onReadable = onReadable;
 	__enable_irq();
 }
-void aSocket::setOnWritable(handler_t onWritable)
+void aSocket::setOnSent(handler_t onSent)
 {
 	__disable_irq();
-	_onWritable = onWritable;
+	_onSent = onSent;
 	__enable_irq();
 }
 
@@ -114,6 +114,21 @@ socket_error_t aSocket::resolve(const char* address, handler_t onDNS)
 	}
     _onDNS = onDNS;
     socket_error_t err = _socket.api->resolve(&_socket, address);
+    return err;
+}
+
+socket_error_t aSocket::bind(const char * addr, const uint16_t port)
+{
+    SocketAddr tmp;
+    socket_error_t err = _socket.api->str2addr(&_socket, tmp.getAddr(), addr);
+    if (err != SOCKET_ERROR_NONE) {
+        return err;
+    }
+    return bind(&tmp, port);
+}
+socket_error_t aSocket::bind(const SocketAddr * addr, const uint16_t port)
+{
+    socket_error_t err = _socket.api->bind(&_socket, addr->getAddr(), port);
     return err;
 }
 

@@ -19,14 +19,7 @@ UDPaSocket::~UDPaSocket()
 {
 }
 
-socket_error_t
-UDPaSocket::bind(SocketAddr *address, uint16_t port)
-{
-    socket_error_t err = _socket.api->bind(&_socket, address->getAddr(), port);
-    return err;
-}
-
-socket_error_t UDPaSocket::connect(SocketAddr *address, uint16_t port)
+socket_error_t UDPaSocket::connect(const SocketAddr *address, const uint16_t port)
 {
     socket_error_t err = _socket.api->connect(&_socket, address->getAddr(), port);
     return err;

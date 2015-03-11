@@ -9,6 +9,7 @@
 
 class SocketAddr {
 public:
+    struct socket_addr * getAddr() {return &_addr;}
     const struct socket_addr * getAddr() const {return &_addr;}
     void * getImpl() {return &_addr.storage;}
     void setAddr(const struct socket_addr *addr);
