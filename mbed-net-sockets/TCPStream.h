@@ -51,7 +51,6 @@ protected:
 protected:
 	handler_t _onConnect;
 	handler_t _onDisconnect;
-	uint16_t _port;
 };
 
 #endif // MBED_TCPStream_H

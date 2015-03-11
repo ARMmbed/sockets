@@ -37,6 +37,7 @@ bool aSocket::error_check(socket_error_t err)
     if (err == SOCKET_ERROR_NONE) {
         return false;
     }
+    // If there is an error, schedule an error event.
     e.event = SOCKET_EVENT_ERROR;
     e.i.e = err;
     _socket.event = &e; // TODO: (CThunk upgrade/Alpha3)
@@ -95,15 +96,19 @@ void aSocket::setOnSent(handler_t onSent)
 	__enable_irq();
 }
 
-void aSocket::_nvEventHandler(void * arg) {
+void aSocket::_nvEventHandler(void * arg)
+{
     (void) arg;
+    // Extract the event
     _event = _socket.event; // TODO: (CThunk upgrade/Alpha3)
+    // Call the event handler
 	_eventHandler(_event);
     _event = NULL; // TODO: (CThunk upgrade/Alpha3)
 }
 
 socket_event_t * aSocket::getEvent()
 {
+	// Note that events are only valid while in the event handler
     return _event; // TODO: (CThunk upgrade/Alpha3)
 }
 
