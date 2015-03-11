@@ -7,9 +7,7 @@
 
 void SocketAddr::setAddr(const struct socket_addr *addr) {
     _addr.type = addr->type;
-    if (&_impl != addr->impl)
-        memcpy(&_impl, addr->impl, sizeof(socket_addr_impl_t));
-    _addr.impl = &_impl;
+    memcpy(_addr.storage, addr->storage, sizeof(_addr.storage));
 }
 void SocketAddr::setAddr(const SocketAddr *addr) {
     setAddr(addr->getAddr());

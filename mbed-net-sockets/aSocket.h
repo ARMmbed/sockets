@@ -13,12 +13,11 @@
 
 #include "CThunk.h"
 
-#include "SocketBuffer.h"
 #include "SocketAddr.h"
 
 class aSocket {
 protected:
-    aSocket(handler_t &defaultHandler, const socket_stack_t stack);
+    aSocket(const socket_stack_t stack);
     virtual ~aSocket();
 
 public:
@@ -31,15 +30,18 @@ public:
     virtual void setOnError(handler_t onError);
 
     virtual void setOnReadable(handler_t onReadable);
-    virtual size_t recv(void * buf, size_t len);
-    virtual size_t recv_from(void * buf, size_t len, SocketAddr *remote_addr, uint16_t *remote_port);
+    virtual socket_error_t recv(void * buf, size_t *len);
+    virtual socket_error_t recv_from(void * buf, size_t *len, SocketAddr *remote_addr, uint16_t *remote_port);
 
     virtual void setOnWritable(handler_t onWritable);
-    virtual size_t send(void * buf, size_t len);
-    virtual size_t send_to(void * but, size_t len, SocketAddr *remote_addr, uint16_t remote_port, );
+    virtual socket_error_t send(const void * buf, const size_t len);
+    virtual socket_error_t send_to(const void * buf, const size_t len, const SocketAddr *remote_addr, uint16_t remote_port);
 
     virtual socket_error_t close();
-    virtual void abort();
+
+    static long ntohl(long);
+    static short ntohs(short);
+    static long long ntohll(long long);
 
 protected:
     virtual void _eventHandler(struct socket_event *ev);

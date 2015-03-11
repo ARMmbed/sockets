@@ -15,6 +15,10 @@ UDPaSocket::UDPaSocket(socket_stack_t stack):
 {
 }
 
+UDPaSocket::~UDPaSocket()
+{
+}
+
 socket_error_t
 UDPaSocket::bind(SocketAddr *address, uint16_t port)
 {

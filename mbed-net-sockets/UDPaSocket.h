@@ -9,7 +9,6 @@
 #include <stdint.h>
 #include "socket_types.h"
 #include "aSocket.h"
-#include "SocketBuffer.h"
 
 /* UDP socket class */
 class UDPaSocket: public aSocket {
