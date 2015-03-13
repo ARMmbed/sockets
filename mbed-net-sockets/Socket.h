@@ -5,14 +5,16 @@
 #ifndef __MBED_NET_SOCKETS_SOCKET_H__
 #define __MBED_NET_SOCKETS_SOCKET_H__
 
-#include <mbed.h>
+
 #include <stddef.h>
 #include <stdint.h>
+#include <mbed.h>
+#include <FunctionPointer.h>
+#include <CThunk.h>
 #include <mbed-net-socket-abstract/socket_types.h>
-
-#include "CThunk.h"
 #include "SocketAddr.h"
 
+typedef FunctionPointer1<void,socket_error_t> handler_t;
 namespace mbed {
 
 /**
@@ -149,6 +151,13 @@ public:
      * @return SOCKET_ERROR_NONE on success, or an error code on failure
      */
     virtual socket_error_t close();
+    /**
+     * Error checking utility
+     * Generates an event on error, does nothing on SOCKET_ERROR_NONE
+     * @param[in] err the error code to check
+     * @return false if err is SOCKET_ERROR_NONE, true otherwise
+     */
+    bool error_check(socket_error_t err);
 
 #if 0 // not implemented yet
     static long ntohl(long);
@@ -162,13 +171,6 @@ protected:
      * @param[in] ev The event to handle
      */
     virtual void _eventHandler(struct socket_event *ev);
-    /**
-     * Error checking utility
-     * Generates an event on error, does nothing on SOCKET_ERROR_NONE
-     * @param[in] err the error code to check
-     * @return false if err is SOCKET_ERROR_NONE, true otherwise
-     */
-    bool error_check(socket_error_t err);
 
 protected:
     handler_t _onDNS;

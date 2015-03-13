@@ -31,11 +31,11 @@ void TCPStream::_eventHandler(struct socket_event *ev)
 	switch (ev->event) {
 	case SOCKET_EVENT_CONNECT:
 		if (_onConnect)
-			_onConnect(NULL);
+			_onConnect(SOCKET_ERROR_NONE);
 		break;
 	case SOCKET_EVENT_DISCONNECT:
 		if (_onDisconnect)
-			_onDisconnect(NULL);
+			_onDisconnect(SOCKET_ERROR_NONE);
 		break;
 	default:
 		// Call the aSocket event handler if the event is a generic one
