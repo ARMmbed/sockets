@@ -7,22 +7,22 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "socket_types.h"
-#include "aSocket.h"
+#include <mbed-net-sockets/Socket.h>
 
+namespace mbed {
 /* UDP socket class */
-class UDPaSocket: public aSocket {
+class UDPSocket: public Socket {
 public:
     /**
      * UDP socket constructor.
      * Does not allocate an underlying UDP Socket instance.
 	 * @param[in] stack The network stack to use for this socket.
      */
-    UDPaSocket(socket_stack_t stack);
+    UDPSocket(socket_stack_t stack);
     /**
      * UDP Socket destructor
      */
-    ~UDPaSocket();
+    ~UDPSocket();
     /**
      * Open a UDP socket
      * Instantiates and initializes the underlying socket. Receive is started immediately after
@@ -32,7 +32,7 @@ public:
      */
     socket_error_t inline open(const socket_address_family_t af)
     {
-    	return aSocket::open(af,SOCKET_DGRAM);
+    	return Socket::open(af,SOCKET_DGRAM);
     }
     /**
      * Connect to a remote host.
@@ -44,4 +44,5 @@ public:
     socket_error_t connect(const SocketAddr *address, const uint16_t port);
 };
 
+}; // namespace mbed
 #endif // MBED_UDPaSocket_H

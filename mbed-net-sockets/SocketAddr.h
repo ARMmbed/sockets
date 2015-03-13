@@ -2,10 +2,12 @@
 * PackageLicenseDeclared: Apache-2.0
 * Copyright 2015 ARM Holdings PLC
 */
-#ifndef MBED_SOCKETADDR_H
-#define MBED_SOCKETADDR_H
+#ifndef __MBED_NET_SOCKETS_SOCKETADDR_H__
+#define __MBED_NET_SOCKETS_SOCKETADDR_H__
 
-#include "socket_types.h"
+#include <mbed-net-socket-abstract/socket_types.h>
+
+namespace mbed {
 
 class SocketAddr {
 public:
@@ -19,4 +21,5 @@ protected:
     struct socket_addr _addr;
 };
 
-#endif // MBED_SOCKETADDR_H
+}; // namespace mbed
+#endif // __MBED_NET_SOCKETS_SOCKETADDR_H__

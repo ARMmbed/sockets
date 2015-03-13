@@ -1,8 +1,11 @@
-#include "socket_types.h"
-#include "TCPStream.h"
+/*
+ * PackageLicenseDeclared: Apache-2.0
+ * Copyright 2015 ARM Holdings PLC
+ */
+#include <mbed-net-sockets/TCPStream.h>
+#include <mbed-net-socket-abstract/socket_api.h>
 
-#include "socket_api.h"
-#include "socket_buffer.h"
+using namespace mbed;
 
 TCPStream::TCPStream(const socket_stack_t stack) :
 		/* Store the default handler */
@@ -36,7 +39,7 @@ void TCPStream::_eventHandler(struct socket_event *ev)
 		break;
 	default:
 		// Call the aSocket event handler if the event is a generic one
-		aSocket::_eventHandler(ev);
+		Socket::_eventHandler(ev);
 		break;
 	}
 }

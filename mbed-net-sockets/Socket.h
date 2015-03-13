@@ -2,41 +2,41 @@
  * PackageLicenseDeclared: Apache-2.0
  * Copyright 2015 ARM Holdings PLC
  */
-#ifndef MBED_ASOCKET_H
-#define MBED_ASOCKET_H
-
+#ifndef __MBED_NET_SOCKETS_SOCKET_H__
+#define __MBED_NET_SOCKETS_SOCKET_H__
 
 #include <mbed.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "socket_types.h"
+#include <mbed-net-socket-abstract/socket_types.h>
 
 #include "CThunk.h"
-
 #include "SocketAddr.h"
 
+namespace mbed {
+
 /**
- * \brief aSocket implements most of the interfaces required for sockets.
- * aSocket is a pure virtual class; it should never be instantiated directly, but it provides
+ * \brief Socket implements most of the interfaces required for sockets.
+ * Socket is a pure virtual class; it should never be instantiated directly, but it provides
  * common functionality for derived classes.
  */
-class aSocket {
+class Socket {
 protected:
-	/**
-	 * aSocket constructor
-	 * Initializes the aSocket object.  Initializes the underlying struct socket.  Does not instantiate
-	 * an underlying network stack socket.
-	 * Since it is somewhat awkward to provide the network stack, a future change will provide
-	 * a way to pass the network interface to the socket constructor, which will extract the stack from
-	 * the interface.
-	 * @param[in] stack The network stack to use for this socket.
-	 */
-    aSocket(const socket_stack_t stack);
     /**
-     * aSocket destructor
+     * Socket constructor
+     * Initializes the Socket object.  Initializes the underlying struct socket.  Does not instantiate
+     * an underlying network stack socket.
+     * Since it is somewhat awkward to provide the network stack, a future change will provide
+     * a way to pass the network interface to the socket constructor, which will extract the stack from
+     * the interface.
+     * @param[in] stack The network stack to use for this socket.
+     */
+    Socket(const socket_stack_t stack);
+    /**
+     * Socket destructor
      * Frees the underlying socket implementation.
      */
-    virtual ~aSocket();
+    virtual ~Socket();
 public:
     /**
      * Extract the current event from the C socket implementation
@@ -176,10 +176,10 @@ protected:
     handler_t _onReadable;
     handler_t _onSent;
 
-    CThunk<aSocket> _irq;
+    CThunk<Socket> _irq;
     struct socket _socket;
 private:
-    socket_event_t *_event; // TODO: (CThunk upgrade/Alpha3)
+    socket_event_t *_event;
     /**
      * Internal event handler.
      * @param[in] arg
@@ -187,5 +187,5 @@ private:
     void _nvEventHandler(void * arg);
 };
 
-
-#endif // MBED_ASOCKET_H
+}; // namespace mbed
+#endif // __MBED_NET_SOCKETS_SOCKET_H__

@@ -2,15 +2,16 @@
  * PackageLicenseDeclared: Apache-2.0
  * Copyright 2015 ARM Holdings PLC
  */
-#include "aSocket.h"
-#include "socket_api.h"
+#include <mbed-net-sockets/Socket.h>
+
+#include <mbed-net-socket-abstract/socket_api.h>
 #include "cmsis.h"
 
-aSocket::aSocket(const socket_stack_t stack) :
+Socket::Socket(const socket_stack_t stack) :
 	_onDNS(NULL), _onError(NULL), _onReadable(NULL), _onSent(NULL),
 	_irq(this), _event(NULL)
 {
-    _irq.callback(&aSocket::_nvEventHandler);
+    _irq.callback(&Socket::_nvEventHandler);
     _socket.handler = NULL;
     _socket.impl = NULL;
     _socket.stack = stack;
@@ -19,19 +20,19 @@ aSocket::aSocket(const socket_stack_t stack) :
         error_check(SOCKET_ERROR_NULL_PTR);
     }
 }
-aSocket::~aSocket()
+Socket::~Socket()
 {
     socket_error_t err = _socket.api->destroy(&_socket);
     error_check(err);
 }
 
-socket_error_t aSocket::open(const socket_address_family_t af, const socket_proto_family_t pf)
+socket_error_t Socket::open(const socket_address_family_t af, const socket_proto_family_t pf)
 {
 	return _socket.api->create(&_socket, af, pf, (socket_api_handler_t)_irq.entry());
 }
 
 
-bool aSocket::error_check(socket_error_t err)
+bool Socket::error_check(socket_error_t err)
 {
     struct socket_event e;
     if (err == SOCKET_ERROR_NONE) {
@@ -47,7 +48,7 @@ bool aSocket::error_check(socket_error_t err)
     return true;
 }
 
-void aSocket::_eventHandler(struct socket_event *ev)
+void Socket::_eventHandler(struct socket_event *ev)
 {
 	switch(ev->event) {
     case SOCKET_EVENT_RX_ERROR:
@@ -77,26 +78,26 @@ void aSocket::_eventHandler(struct socket_event *ev)
 	}
 }
 
-void aSocket::setOnError(handler_t onError)
+void Socket::setOnError(handler_t onError)
 {
 	__disable_irq();
 	_onError = onError;
 	__enable_irq();
 }
-void aSocket::setOnReadable(handler_t onReadable)
+void Socket::setOnReadable(handler_t onReadable)
 {
 	__disable_irq();
 	_onReadable = onReadable;
 	__enable_irq();
 }
-void aSocket::setOnSent(handler_t onSent)
+void Socket::setOnSent(handler_t onSent)
 {
 	__disable_irq();
 	_onSent = onSent;
 	__enable_irq();
 }
 
-void aSocket::_nvEventHandler(void * arg)
+void Socket::_nvEventHandler(void * arg)
 {
     (void) arg;
     // Extract the event
@@ -106,13 +107,13 @@ void aSocket::_nvEventHandler(void * arg)
     _event = NULL; // TODO: (CThunk upgrade/Alpha3)
 }
 
-socket_event_t * aSocket::getEvent()
+socket_event_t * Socket::getEvent()
 {
 	// Note that events are only valid while in the event handler
     return _event; // TODO: (CThunk upgrade/Alpha3)
 }
 
-socket_error_t aSocket::resolve(const char* address, handler_t onDNS)
+socket_error_t Socket::resolve(const char* address, handler_t onDNS)
 {
 	if (_socket.handler == NULL) {
 		return SOCKET_ERROR_CLOSED;
@@ -122,7 +123,7 @@ socket_error_t aSocket::resolve(const char* address, handler_t onDNS)
     return err;
 }
 
-socket_error_t aSocket::bind(const char * addr, const uint16_t port)
+socket_error_t Socket::bind(const char * addr, const uint16_t port)
 {
     SocketAddr tmp;
     socket_error_t err = _socket.api->str2addr(&_socket, tmp.getAddr(), addr);
@@ -131,22 +132,22 @@ socket_error_t aSocket::bind(const char * addr, const uint16_t port)
     }
     return bind(&tmp, port);
 }
-socket_error_t aSocket::bind(const SocketAddr * addr, const uint16_t port)
+socket_error_t Socket::bind(const SocketAddr * addr, const uint16_t port)
 {
     socket_error_t err = _socket.api->bind(&_socket, addr->getAddr(), port);
     return err;
 }
 
-socket_error_t aSocket::close()
+socket_error_t Socket::close()
 {
     return _socket.api->close(&_socket);
 }
 
-socket_error_t aSocket::recv(void * buf, size_t *len)
+socket_error_t Socket::recv(void * buf, size_t *len)
 {
 	return _socket.api->recv(&_socket, buf, len);
 }
-socket_error_t aSocket::recv_from(void * buf, size_t *len, SocketAddr *remote_addr, uint16_t *remote_port)
+socket_error_t Socket::recv_from(void * buf, size_t *len, SocketAddr *remote_addr, uint16_t *remote_port)
 {
 	struct socket_addr addr;
 	socket_error_t err = _socket.api->recv_from(&_socket, buf, len, &addr, remote_port);
@@ -154,11 +155,11 @@ socket_error_t aSocket::recv_from(void * buf, size_t *len, SocketAddr *remote_ad
 	return err;
 }
 
-socket_error_t aSocket::send(const void * buf, const size_t len)
+socket_error_t Socket::send(const void * buf, const size_t len)
 {
 	return _socket.api->send(&_socket, buf, len);
 }
-socket_error_t aSocket::send_to(const void * buf, const size_t len, const SocketAddr *remote_addr, uint16_t remote_port)
+socket_error_t Socket::send_to(const void * buf, const size_t len, const SocketAddr *remote_addr, uint16_t remote_port)
 {
 	return _socket.api->send_to(&_socket, buf, len, remote_addr->getAddr(), remote_port);
 }

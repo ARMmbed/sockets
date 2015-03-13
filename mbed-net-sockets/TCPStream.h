@@ -1,16 +1,16 @@
-#ifndef MBED_TCPStream_H
-#define MBED_TCPStream_H
 /*
  * PackageLicenseDeclared: Apache-2.0
  * Copyright 2015 ARM Holdings PLC
  */
+#ifndef __MBED_NET_SOCKETS_TCPSTREAM_H__
+#define __MBED_NET_SOCKETS_TCPSTREAM_H__
 #include <stddef.h>
 #include <stdint.h>
 #include <Ticker.h>
-#include "socket_types.h"
-#include "TCPAsynch.h"
+#include <mbed-net-sockets/TCPAsynch.h>
 #include "buffer.h"
 
+namespace mbed {
 class TCPStream: public TCPAsynch {
 public:
     /**
@@ -53,4 +53,5 @@ protected:
 	handler_t _onDisconnect;
 };
 
-#endif // MBED_TCPStream_H
+}; // namespace mbed
+#endif // __MBED_NET_SOCKETS_TCPSTREAM_H__
