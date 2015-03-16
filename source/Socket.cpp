@@ -55,19 +55,19 @@ void Socket::_eventHandler(struct socket_event *ev)
     case SOCKET_EVENT_TX_ERROR:
     case SOCKET_EVENT_ERROR:
     	if (_onError)
-    		_onError(NULL);
+    		_onError(ev->i.e);
     	break;
     case SOCKET_EVENT_RX_DONE:
     	if(_onReadable)
-    		_onReadable(NULL);
+    		_onReadable(SOCKET_ERROR_NONE);
     	break;
     case SOCKET_EVENT_TX_DONE:
     	if (_onSent)
-    		_onSent(NULL);
+    		_onSent(SOCKET_ERROR_NONE);
     	break;
     case SOCKET_EVENT_DNS:
     	if (_onDNS)
-    		_onDNS(NULL);
+    		_onDNS(SOCKET_ERROR_NONE);
     	break;
     case SOCKET_EVENT_CONNECT:
     case SOCKET_EVENT_DISCONNECT:
