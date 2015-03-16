@@ -1,18 +1,23 @@
-#ifndef MBED_TCP_ASYNCH_H
-#define MBED_TCP_ASYNCH_H
+/*
+ * PackageLicenseDeclared: Apache-2.0
+ * Copyright 2015 ARM Holdings PLC
+ */
+#ifndef __MBED_NET_SOCKETS_TCP_ASYNCH__
+#define __MBED_NET_SOCKETS_TCP_ASYNCH__
 
-#include "aSocket.h"
+#include <mbed-net-sockets/Socket.h>
+#include <mbed-net-socket-abstract/socket_api.h>
+
 #include "Ticker.h"
-#include "socket_api.h"
 
-class TCPAsynch: public aSocket {
-public:
-    socket_error_t bind(const char *addr, uint16_t port);
-    socket_error_t bind(const SocketAddr *addr, uint16_t port);
+namespace mbed {
+class TCPAsynch: public Socket {
 protected:
-  TCPAsynch(handler_t defaultHandler, const socket_stack_t stack);
+  TCPAsynch(const socket_stack_t stack);
   ~TCPAsynch();
 
+public:
+  socket_error_t open(const socket_address_family_t af);
 protected:
   static Ticker _ticker;
   static handler_t _tick_handler;
@@ -23,4 +28,5 @@ protected:
   static uintptr_t _TCPSockets;
 };
 
-#endif // MBED_TCP_ASYNCH_H
+}; //namespace mbed
+#endif // __MBED_NET_SOCKETS_TCP_ASYNCH__

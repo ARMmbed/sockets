@@ -14,9 +14,6 @@
       "type": "Apache-2.0"
     }
   ],
-  "extraIncludes": [
-    "mbed-net-sockets"
-  ],
   "dependencies": {
     "mbed": "ARMmbed/mbed-sdk",
     "mbed-net-socket-abstract" : "ARMmbed/mbed-net-socket-abstract#master"
