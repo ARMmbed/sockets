@@ -2,8 +2,8 @@
  * PackageLicenseDeclared: Apache-2.0
  * Copyright 2015 ARM Holdings PLC
  */
-#ifndef MBED_UDPaSocket_H
-#define MBED_UDPaSocket_H
+#ifndef __MBED_NET_SOCKETS_UDPSOCKET_H__
+#define __MBED_NET_SOCKETS_UDPSOCKET_H__
 
 #include <stddef.h>
 #include <stdint.h>
@@ -45,4 +45,4 @@ public:
 };
 
 }; // namespace mbed
-#endif // MBED_UDPaSocket_H
+#endif // __MBED_NET_SOCKETS_UDPSOCKET_H__
