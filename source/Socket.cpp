@@ -28,6 +28,9 @@ Socket::~Socket()
 
 socket_error_t Socket::open(const socket_address_family_t af, const socket_proto_family_t pf)
 {
+    if (_socket.api == NULL) {
+        return SOCKET_ERROR_BAD_STACK;
+    }
 	return _socket.api->create(&_socket, af, pf, (socket_api_handler_t)_irq.entry());
 }
 
