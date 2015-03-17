@@ -178,3 +178,7 @@ socket_error_t Socket::send_to(const void * buf, const size_t len, const SocketA
 {
 	return _socket.api->send_to(&_socket, buf, len, remote_addr->getAddr(), remote_port);
 }
+
+bool Socket::isConnected() const {
+    return _socket.api->is_connected(&_socket);
+}

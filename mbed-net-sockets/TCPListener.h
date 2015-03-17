@@ -6,29 +6,26 @@
  */
 #include <stddef.h>
 #include <stdint.h>
-#include "socket_types.h"
 #include "TCPAsynch.h"
-#include "buffer.h"
-#include "CThunk.h"
+#include "TCPStream.h"
 
-class TCPListener: protected TCPAsynch{
+namespace mbed {
+
+class TCPListener: public TCPAsynch {
 public:
-  /* Socket Creation API */
-  TCPListener(handler_t defaultHandler, const socket_stack_t stack)
-  ~TCPaSocket();
+    /* Socket Creation API */
+    TCPListener(const socket_stack_t stack);
+    ~TCPListener();
 
-  socket_error_t bind(struct socket_addr *address, uint16_t port);
+    socket_error_t start_listening(handler_t listenHandler, uint32_t backlog = 0);
+    socket_error_t stop_listening();
 
-  socket_error_t start_listening(handler_t &listenHandler, uint backlog);
-  socket_error_t stop_listening();
-
-  TCPStream * accept(handler_t defaultHandler, struct socket *new_socket);
+    TCPStream * accept(struct socket *new_socket);
 
 protected:
-  void _eventHandler(void*);
+    void _eventHandler(void*);
+    handler_t _onIncomming;
+};
 
-protected:
-    CThunk<TCPListener> _onAccept;
 }
-
 #endif // MBED_TCPListener_H

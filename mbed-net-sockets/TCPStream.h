@@ -30,7 +30,14 @@ public:
      * Does not allocate an underlying TCP Socket instance.
 	 * @param[in] stack The network stack to use for this socket.
      */
-	TCPStream(const socket_stack_t stack);
+    TCPStream(const socket_stack_t stack);
+    /**
+     * TCP socket constructor.
+     * Does not allocate an underlying TCP Socket instance. This version is for use with
+     * TCP Accept.
+     * @param[in] sock The TCP socket instance to use for this TCP socket.
+     */
+    TCPStream(const struct socket * sock);
 	/**
 	 * TCP socket destructor
 	 */

@@ -20,12 +20,21 @@
 using namespace mbed;
 
 TCPStream::TCPStream(const socket_stack_t stack) :
-		/* Store the default handler */
-		TCPAsynch(stack),
-		/* Zero the handlers */
-		_onConnect(NULL), _onDisconnect(NULL)
+        /* Store the default handler */
+        TCPAsynch(stack),
+        /* Zero the handlers */
+        _onConnect(NULL), _onDisconnect(NULL)
 {
-	//NOTE: _socket is initialized by TCPAsynch.
+    /* NOTE: _socket is initialized by TCPAsynch. */
+}
+TCPStream::TCPStream(const struct socket *sock) :
+        /* Store the default handler */
+        TCPAsynch(sock->stack),
+        /* Zero the handlers */
+        _onConnect(NULL), _onDisconnect(NULL)
+{
+    /* NOTE: _socket is initialized by TCPAsynch. */
+    _socket = *sock;
 }
 
 TCPStream::~TCPStream()
