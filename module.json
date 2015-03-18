@@ -15,8 +15,8 @@
     }
   ],
   "dependencies": {
-    "mbed": "ARMmbed/mbed-sdk",
-    "mbed-net-socket-abstract" : "ARMmbed/mbed-net-socket-abstract#master"
+    "mbed": "ARMmbed/mbed-sdk-private",
+    "mbed-net-socket-abstract" : "ARMmbed/mbed-net-socket-abstract#~0.0.2"
   },
   "targetDependencies": {
   }
