@@ -1,6 +1,6 @@
 {
   "name": "mbed-net-sockets",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "C++ Asynchronous Sockets Layer",
   "keywords": [
     "mbed",
@@ -16,8 +16,7 @@
   ],
   "dependencies": {
     "mbed": "ARMmbed/mbed-sdk-private",
-    "mbed-net-socket-abstract" : "ARMmbed/mbed-net-socket-abstract#~0.0.2"
+    "mbed-net-socket-abstract": "ARMmbed/mbed-net-socket-abstract#~0.0.2"
   },
-  "targetDependencies": {
-  }
+  "targetDependencies": {}
 }
