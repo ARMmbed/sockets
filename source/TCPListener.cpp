@@ -26,7 +26,40 @@ socket_error_t TCPListener::stop_listening()
     socket_error_t err = _socket.api->stop_listen(&_socket);
     return err;
 }
-TCPStream * TCPListener::accept(struct socket *new_socket)
+TCPStream * TCPListener::accept(void *new_impl)
 {
-    return new TCPStream(new_socket);
+    struct socket new_socket = _socket;
+    new_socket.impl = new_impl;
+    return new TCPStream(&new_socket);
+}
+
+
+void TCPListener::_eventHandler(struct socket_event *ev)
+{
+    switch(ev->event) {
+    case SOCKET_EVENT_RX_ERROR:
+    case SOCKET_EVENT_TX_ERROR:
+    case SOCKET_EVENT_ERROR:
+        if (_onError)
+            _onError(ev->i.e);
+        break;
+    case SOCKET_EVENT_RX_DONE:
+    case SOCKET_EVENT_TX_DONE:
+    case SOCKET_EVENT_CONNECT:
+    case SOCKET_EVENT_DISCONNECT:
+        if(_onError)
+            _onError(SOCKET_ERROR_UNIMPLEMENTED);
+        break;
+    case SOCKET_EVENT_DNS:
+        if (_onDNS)
+            _onDNS(SOCKET_ERROR_NONE);
+        break;
+    case SOCKET_EVENT_ACCEPT:
+        if (_onIncomming)
+            _onIncomming(SOCKET_ERROR_NONE);
+        break;
+    case SOCKET_EVENT_NONE:
+    default:
+        break;
+    }
 }

@@ -20,10 +20,10 @@ public:
     socket_error_t start_listening(handler_t listenHandler, uint32_t backlog = 0);
     socket_error_t stop_listening();
 
-    TCPStream * accept(struct socket *new_socket);
+    TCPStream * accept(void* new_impl);
 
 protected:
-    void _eventHandler(void*);
+    void _eventHandler(struct socket_event *ev);
     handler_t _onIncomming;
 };
 

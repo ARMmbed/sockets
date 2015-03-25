@@ -26,9 +26,8 @@ Ticker TCPAsynch::_ticker;
 handler_t TCPAsynch::_tick_handler = NULL;
 
 TCPAsynch::TCPAsynch(const socket_stack_t stack) :
-		Socket(stack)
+        Socket(stack)
 {
-	// TODO: Dual stack: This block belongs to connect/bind
 }
 socket_error_t TCPAsynch::open(const socket_address_family_t af)
 {

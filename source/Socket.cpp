@@ -20,8 +20,8 @@
 #include "cmsis.h"
 
 Socket::Socket(const socket_stack_t stack) :
-	_onDNS(NULL), _onError(NULL), _onReadable(NULL), _onSent(NULL),
-	_irq(this), _event(NULL)
+    _onDNS(NULL), _onError(NULL), _onReadable(NULL), _onSent(NULL),
+    _irq(this), _event(NULL)
 {
     _irq.callback(&Socket::_nvEventHandler);
     _socket.handler = NULL;

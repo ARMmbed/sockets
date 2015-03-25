@@ -33,34 +33,36 @@ TCPStream::TCPStream(const struct socket *sock) :
         /* Zero the handlers */
         _onConnect(NULL), _onDisconnect(NULL)
 {
-    /* NOTE: _socket is initialized by TCPAsynch. */
-    _socket = *sock;
+    _socket.family     = sock->family;
+    _socket.impl       = sock->impl;
+    socket_error_t err = _socket.api->accept(&_socket, reinterpret_cast<socket_api_handler_t>(_irq.entry()));
+    error_check(err);
 }
 
 TCPStream::~TCPStream()
 {
 }
-socket_error_t TCPStream::connect(const SocketAddr *address,
-		const uint16_t port, const handler_t onConnect) {
-	_onConnect = onConnect;
-	socket_error_t err = _socket.api->connect(&_socket, address->getAddr(), port);
-	return err;
+socket_error_t TCPStream::connect(const SocketAddr *address, const uint16_t port, const handler_t onConnect)
+{
+    _onConnect = onConnect;
+    socket_error_t err = _socket.api->connect(&_socket, address->getAddr(), port);
+    return err;
 }
 
 void TCPStream::_eventHandler(struct socket_event *ev)
 {
-	switch (ev->event) {
-	case SOCKET_EVENT_CONNECT:
-		if (_onConnect)
-			_onConnect(SOCKET_ERROR_NONE);
-		break;
-	case SOCKET_EVENT_DISCONNECT:
-		if (_onDisconnect)
-			_onDisconnect(SOCKET_ERROR_NONE);
-		break;
-	default:
-		// Call the aSocket event handler if the event is a generic one
-		Socket::_eventHandler(ev);
-		break;
-	}
+    switch (ev->event) {
+        case SOCKET_EVENT_CONNECT:
+            if (_onConnect)
+                _onConnect(SOCKET_ERROR_NONE);
+            break;
+        case SOCKET_EVENT_DISCONNECT:
+            if (_onDisconnect)
+                _onDisconnect(SOCKET_ERROR_NONE);
+            break;
+        default:
+            // Call the aSocket event handler if the event is a generic one
+            Socket::_eventHandler(ev);
+            break;
+    }
 }
