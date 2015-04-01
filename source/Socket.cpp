@@ -149,7 +149,15 @@ socket_error_t Socket::bind(const char * addr, const uint16_t port)
 }
 socket_error_t Socket::bind(const SocketAddr * addr, const uint16_t port)
 {
-    socket_error_t err = _socket.api->bind(&_socket, addr->getAddr(), port);
+    socket_error_t err;
+    if (_socket.impl == NULL)
+    {
+        err = open(SOCKET_AF_INET4,(socket_proto_family_t) _socket.family);
+        if (err != SOCKET_ERROR_NONE) {
+            return err;
+        }
+    }
+    err = _socket.api->bind(&_socket, addr->getAddr(), port);
     return err;
 }
 

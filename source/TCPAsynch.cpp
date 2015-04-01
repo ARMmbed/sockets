@@ -28,6 +28,7 @@ handler_t TCPAsynch::_tick_handler = NULL;
 TCPAsynch::TCPAsynch(const socket_stack_t stack) :
         Socket(stack)
 {
+    _socket.family = SOCKET_STREAM;
 }
 socket_error_t TCPAsynch::open(const socket_address_family_t af)
 {

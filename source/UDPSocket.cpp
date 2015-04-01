@@ -22,6 +22,7 @@ UDPSocket::UDPSocket(socket_stack_t stack):
 /* Store the default handler */
     Socket(stack)
 {
+    _socket.family = SOCKET_DGRAM;
 }
 
 UDPSocket::~UDPSocket()
