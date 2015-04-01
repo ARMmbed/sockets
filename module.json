@@ -1,6 +1,7 @@
 {
   "name": "mbed-net-sockets",
   "version": "0.0.2",
+  "private" : true,
   "description": "C++ Asynchronous Sockets Layer",
   "keywords": [
     "mbed",
