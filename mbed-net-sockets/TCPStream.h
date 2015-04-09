@@ -30,7 +30,16 @@ public:
      * Does not allocate an underlying TCP Socket instance.
 	 * @param[in] stack The network stack to use for this socket.
      */
-	TCPStream(const socket_stack_t stack);
+    TCPStream(const socket_stack_t stack);
+    /**
+     * TCP socket constructor.
+     * Does not allocate an underlying TCP Socket instance. This version is for use with
+     * TCPListener::accept(). The struct socket instance passed into this constructor should
+     * be a fully initialized socket, with an initialized impl field.  TCPStream will copy
+     * the stack, API, protocol family, and impl pointer from sock.
+     * @param[in] sock The TCP socket instance to use for this TCP socket.
+     */
+    TCPStream(const struct socket * sock);
 	/**
 	 * TCP socket destructor
 	 */
@@ -51,7 +60,7 @@ public:
 	 * This handler only needs to be configured once onConnect has been called
 	 * @param[in] h the handler to call when a connection is disconnected
 	 */
-	void onDisconnect(const handler_t h) { _onDisconnect = h; }
+	void setOnDisconnect(const handler_t h) { _onDisconnect = h; }
 
 protected:
 	/**

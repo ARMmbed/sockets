@@ -20,8 +20,8 @@
 #include "cmsis.h"
 
 Socket::Socket(const socket_stack_t stack) :
-	_onDNS(NULL), _onError(NULL), _onReadable(NULL), _onSent(NULL),
-	_irq(this), _event(NULL)
+    _onDNS(NULL), _onError(NULL), _onReadable(NULL), _onSent(NULL),
+    _irq(this), _event(NULL)
 {
     _irq.callback(&Socket::_nvEventHandler);
     _socket.handler = NULL;
@@ -149,7 +149,15 @@ socket_error_t Socket::bind(const char * addr, const uint16_t port)
 }
 socket_error_t Socket::bind(const SocketAddr * addr, const uint16_t port)
 {
-    socket_error_t err = _socket.api->bind(&_socket, addr->getAddr(), port);
+    socket_error_t err;
+    if (_socket.impl == NULL)
+    {
+        err = open(SOCKET_AF_INET4,(socket_proto_family_t) _socket.family);
+        if (err != SOCKET_ERROR_NONE) {
+            return err;
+        }
+    }
+    err = _socket.api->bind(&_socket, addr->getAddr(), port);
     return err;
 }
 
@@ -177,4 +185,8 @@ socket_error_t Socket::send(const void * buf, const size_t len)
 socket_error_t Socket::send_to(const void * buf, const size_t len, const SocketAddr *remote_addr, uint16_t remote_port)
 {
 	return _socket.api->send_to(&_socket, buf, len, remote_addr->getAddr(), remote_port);
+}
+
+bool Socket::isConnected() const {
+    return _socket.api->is_connected(&_socket);
 }

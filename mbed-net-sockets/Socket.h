@@ -171,6 +171,12 @@ public:
      */
     bool error_check(socket_error_t err);
 
+    /**
+     * Checks the socket status to determine whether it is still connected.
+     * @return true if the socket is connected, false if it is not
+     */
+    virtual bool isConnected() const;
+
 #if 0 // not implemented yet
     static long ntohl(long);
     static short ntohs(short);
