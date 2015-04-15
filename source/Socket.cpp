@@ -34,8 +34,10 @@ Socket::Socket(const socket_stack_t stack) :
 }
 Socket::~Socket()
 {
-    socket_error_t err = _socket.api->destroy(&_socket);
-    error_check(err);
+    if(_socket.api != NULL && _socket.api->destroy != NULL) {
+        socket_error_t err = _socket.api->destroy(&_socket);
+        error_check(err);
+    }
 }
 
 socket_error_t Socket::open(const socket_address_family_t af, const socket_proto_family_t pf)

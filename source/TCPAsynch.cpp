@@ -46,7 +46,6 @@ socket_error_t TCPAsynch::open(const socket_address_family_t af)
 
 TCPAsynch::~TCPAsynch()
 {
-	_socket.api->destroy(&_socket);
 	_TCPSockets--;
 	if (!_TCPSockets) {
 		_ticker.detach();
