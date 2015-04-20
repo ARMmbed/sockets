@@ -28,7 +28,7 @@ public:
     /**
      * UDP socket constructor.
      * Does not allocate an underlying UDP Socket instance.
-	 * @param[in] stack The network stack to use for this socket.
+     * @param[in] stack The network stack to use for this socket.
      */
     UDPSocket(socket_stack_t stack);
     /**
@@ -44,7 +44,7 @@ public:
      */
     socket_error_t inline open(const socket_address_family_t af)
     {
-    	return Socket::open(af,SOCKET_DGRAM);
+        return Socket::open(af,SOCKET_DGRAM);
     }
     /**
      * Connect to a remote host.

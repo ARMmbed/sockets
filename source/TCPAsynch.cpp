@@ -32,22 +32,22 @@ TCPAsynch::TCPAsynch(const socket_stack_t stack) :
 }
 socket_error_t TCPAsynch::open(const socket_address_family_t af)
 {
-	socket_error_t err = Socket::open(af, SOCKET_STREAM);
-	if (err != SOCKET_ERROR_NONE)
-		return err;
-	if (_TCPSockets == 0) {
-		timestamp_t timeout = _socket.api->periodic_interval(&_socket);
-		void (*f)() = _socket.api->periodic_task(&_socket);
-		_ticker.attach_us(f, timeout);
-	}
-	_TCPSockets++;
-	return err;
+    socket_error_t err = Socket::open(af, SOCKET_STREAM);
+    if (err != SOCKET_ERROR_NONE)
+        return err;
+    if (_TCPSockets == 0) {
+        timestamp_t timeout = _socket.api->periodic_interval(&_socket);
+        void (*f)() = _socket.api->periodic_task(&_socket);
+        _ticker.attach_us(f, timeout);
+    }
+    _TCPSockets++;
+    return err;
 }
 
 TCPAsynch::~TCPAsynch()
 {
-	_TCPSockets--;
-	if (!_TCPSockets) {
-		_ticker.detach();
-	}
+    _TCPSockets--;
+    if (!_TCPSockets) {
+        _ticker.detach();
+    }
 }
