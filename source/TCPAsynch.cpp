@@ -30,7 +30,7 @@ TCPAsynch::TCPAsynch(const socket_stack_t stack) :
 {
     _socket.family = SOCKET_STREAM;
     if (_TCPSockets == 0) {
-        timestamp_t timeout = _socket.api->periodic_interval(&_socket);
+        timestamp_t timeout = _socket.api->periodic_interval(&_socket) * 1000;
         void (*f)() = _socket.api->periodic_task(&_socket);
         _ticker.attach_us(f, timeout);
     }
