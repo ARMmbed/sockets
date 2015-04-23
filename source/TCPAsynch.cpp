@@ -29,18 +29,16 @@ TCPAsynch::TCPAsynch(const socket_stack_t stack) :
         Socket(stack)
 {
     _socket.family = SOCKET_STREAM;
-}
-socket_error_t TCPAsynch::open(const socket_address_family_t af)
-{
-    socket_error_t err = Socket::open(af, SOCKET_STREAM);
-    if (err != SOCKET_ERROR_NONE)
-        return err;
     if (_TCPSockets == 0) {
-        timestamp_t timeout = _socket.api->periodic_interval(&_socket);
+        timestamp_t timeout = _socket.api->periodic_interval(&_socket) * 1000;
         void (*f)() = _socket.api->periodic_task(&_socket);
         _ticker.attach_us(f, timeout);
     }
     _TCPSockets++;
+}
+socket_error_t TCPAsynch::open(const socket_address_family_t af)
+{
+    socket_error_t err = Socket::open(af, SOCKET_STREAM);
     return err;
 }
 
