@@ -24,7 +24,7 @@ Socket::Socket(const socket_stack_t stack) :
     _irq(this), _event(NULL)
 {
     _irq.callback(&Socket::_nvEventHandler);
-    _socket.handler = NULL;
+    _socket.handler = (socket_api_handler_t)_irq.entry();
     _socket.impl = NULL;
     _socket.stack = stack;
     _socket.api = socket_get_api(stack);
