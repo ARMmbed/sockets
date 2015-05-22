@@ -6,6 +6,9 @@
 #include <mbed-net-sockets/TCPStream.h>
 #include <mbed-net-socket-abstract/socket_api.h>
 
+using namespace mbed;
+
+
 TCPListener::TCPListener(const socket_stack_t stack) :
     TCPAsynch(stack), _onIncomming(NULL)
 {
@@ -30,6 +33,8 @@ TCPStream * TCPListener::accept(void *new_impl)
 {
     struct socket new_socket = _socket;
     new_socket.impl = new_impl;
+    new_socket.stack = _socket.stack;
+    new_socket.family = _socket.family;
     return new TCPStream(&new_socket);
 }
 
