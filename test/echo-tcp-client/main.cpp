@@ -19,8 +19,6 @@ public:
     TCPEchoClient(socket_stack_t stack, char * ext_buf) :
         _stream(stack), buffer(ext_buf), done(false)
         {
-            socket_error_t err = _stream.open(SOCKET_AF_INET4);
-            TEST_EQ(err, SOCKET_ERROR_NONE);
         }
     socket_error_t start_test(char * host_addr, uint16_t port)
     {
@@ -34,6 +32,10 @@ public:
         /* Extract the Socket event to read the resolved address */
         socket_event_t *event = _stream.getEvent();
         _resolvedAddr.setAddr(&event->i.d.addr);
+        /* TODO: add support for getting AF from addr */
+        /* Open the socket */
+        err = _stream.open(SOCKET_AF_INET4);
+        TEST_EQ(err, SOCKET_ERROR_NONE);
         /* Register the read handler */
         _stream.setOnReadable(handler_t(this, &TCPEchoClient::onRx));
         /* Send the query packet to the remote host */
