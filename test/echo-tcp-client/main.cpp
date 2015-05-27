@@ -68,9 +68,12 @@ public:
                 TEST_EQ(err, SOCKET_ERROR_NONE);
             }
         }
-        err = _stream.send(out_failure, sizeof(out_failure) - 1);
-        done = true;
-        TEST_EQ(err, SOCKET_ERROR_NONE);
+        if (!done) {
+            err = _stream.send(out_failure, sizeof(out_failure) - 1);
+            done = true;
+            TEST_EQ(err, SOCKET_ERROR_NONE);
+        }
+        _stream.close();
     }
     bool isdone() {
         return done;
@@ -120,7 +123,6 @@ int main() {
 
     delete client;
     eth.disconnect();
-pretest_exit:
     MBED_HOSTTEST_RESULT(TEST_RESULT());
 
 }

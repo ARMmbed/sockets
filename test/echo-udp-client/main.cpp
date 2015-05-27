@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "mbed-net-sockets/UDPSocket.h"
 #include "EthernetInterface.h"
+#include "mbed-net-lwip/lwipv4_init.h"
 
 #define CHECK(RC, STEP)       if (RC < 0) error(STEP": %d\r\n", RC)
 
@@ -133,7 +134,7 @@ int main() {
     printf("MBED: UDPClient IP Address is %s\r\n", eth.getIPAddress());
     sprintf(buffer, "%d.%d.%d.%d", ip_addr.ip_1, ip_addr.ip_2, ip_addr.ip_3, ip_addr.ip_4);
 
-    socket_error_t err = ec.start_test(buffer, port);
+    err = ec.start_test(buffer, port);
     TEST_EQ(err, SOCKET_ERROR_NONE);
     while (!ec.isDone() && !ec.isError()) {
         __WFI();
