@@ -53,14 +53,14 @@ public:
      * @param[in] onConnect
      * @return SOCKET_ERROR_NONE on success, or an error code on failure
      */
-    socket_error_t connect(const SocketAddr *address, const uint16_t port,
+    virtual socket_error_t connect(const SocketAddr *address, const uint16_t port,
             const handler_t onConnect);
     /**
      * Set a disconnect handler
      * This handler only needs to be configured once onConnect has been called
      * @param[in] h the handler to call when a connection is disconnected
      */
-    void setOnDisconnect(const handler_t h) { _onDisconnect = h; }
+    virtual void setOnDisconnect(const handler_t h) { _onDisconnect = h; }
 
 protected:
     /**

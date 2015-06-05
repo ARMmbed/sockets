@@ -29,7 +29,7 @@ protected:
     ~TCPAsynch();
 
 public:
-    socket_error_t open(const socket_address_family_t af);
+    virtual socket_error_t open(const socket_address_family_t af);
 protected:
     static Ticker _ticker;
     static handler_t _tick_handler;

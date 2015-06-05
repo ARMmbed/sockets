@@ -19,5 +19,14 @@
     "mbed": "*",
     "mbed-net-socket-abstract": "~0.1.1"
   },
+  "scripts": {
+    "testReporter": [
+      "mbedgt",
+      "--digest",
+      "stdin",
+      "-v",
+      "-V"
+    ]
+  },
   "targetDependencies": {}
 }
