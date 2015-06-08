@@ -52,7 +52,7 @@ public:
      * @param new_impl
      * @return
      */
-    TCPStream * accept(void* new_impl);
+    virtual TCPStream * accept(void* new_impl);
 
 protected:
     /**
