@@ -25,10 +25,14 @@ class SocketAddr {
 public:
     struct socket_addr * getAddr() {return &_addr;}
     const struct socket_addr * getAddr() const {return &_addr;}
-    void * getImpl() {return &_addr.storage;}
     void setAddr(const struct socket_addr *addr);
     void setAddr(const SocketAddr *addr);
-    size_t getAddrSize() const {return sizeof(_addr.storage);}
+    size_t getAddrSize() const {return sizeof(_addr.ipv6be);}
+    bool is_v4();
+
+    int fmtIPv4(char *buf, size_t size);
+    int fmtIPv46(char *buf, size_t size);
+    int fmtIPv6(char *buf, size_t size);
 protected:
     struct socket_addr _addr;
 };
