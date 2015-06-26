@@ -31,7 +31,6 @@ public:
     bool is_v4();
 
     int fmtIPv4(char *buf, size_t size);
-    int fmtIPv46(char *buf, size_t size);
     int fmtIPv6(char *buf, size_t size);
 protected:
     struct socket_addr _addr;

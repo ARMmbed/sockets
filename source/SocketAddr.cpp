@@ -32,10 +32,9 @@ void SocketAddr::setAddr(const SocketAddr *addr) {
 #define TERMINATOR_SIZE 1
 #define IPv4_STRLEN (4 * (OCTET_SIZE) + 3 * SEPARATOR_SIZE + TERMINATOR_SIZE)
 #define IPv6_QUAD_SIZE 4
-#define IPv46_PREFIX ("::ffff:")
-#define IPv46_PREFIX_STRLEN (sizeof(IPv46_PREFIX))
-#define IPv46_STRLEN (IPv46_PREFIX_STRLEN + IPv4_STRLEN)
-#define IPv6_STRLEN (IPv6_QUAD_SIZE * 8 + 7 * SEPARATOR_SIZE + TERMINATOR_SIZE)
+#define IPv64_PREFIX ("::ffff:")
+#define IPv64_PREFIX_STRLEN (sizeof(IPv64_PREFIX))
+#define IPv64_STRLEN (IPv64_PREFIX_STRLEN + IPv4_STRLEN)
 
 
 // Returns 0 on success
@@ -48,16 +47,16 @@ int SocketAddr::fmtIPv4(char *buf, size_t size)
     int rc = snprintf(buf, size, "%d.%d.%d.%d", v4ip[0], v4ip[1], v4ip[2], v4ip[3] );
     return (rc < 0);
 }
-int SocketAddr::fmtIPv46(char *buf, size_t size)
-{
-    if (size < IPv46_STRLEN) {
-        return -1;
-    }
-    strncpy(buf, IPv46_PREFIX, IPv46_PREFIX_STRLEN);
-    return fmtIPv4(buf + IPv46_PREFIX_STRLEN, size-IPv46_PREFIX_STRLEN);
-}
 int SocketAddr::fmtIPv6(char *buf, size_t size)
 {
-    //TODO: requires inet_ntop
-    return -1;
+    if (socket_addr_is_ipv4(&_addr)) {
+        if (size < IPv64_STRLEN) {
+            return -1;
+        }
+        strncpy(buf, IPv64_PREFIX, IPv64_PREFIX_STRLEN);
+        return fmtIPv4(buf + IPv64_PREFIX_STRLEN, size - IPv64_PREFIX_STRLEN);
+    } else {
+        //TODO: requires inet_ntop
+        return -1;
+    }
 }
