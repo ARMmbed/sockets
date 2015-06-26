@@ -27,6 +27,10 @@ void SocketAddr::setAddr(const SocketAddr *addr) {
     setAddr(addr->getAddr());
 }
 
+bool SocketAddr::is_v4() {
+    return socket_addr_is_ipv4(&_addr);
+}
+
 #define OCTET_SIZE 3
 #define SEPARATOR_SIZE 1
 #define TERMINATOR_SIZE 1
