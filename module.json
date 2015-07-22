@@ -16,8 +16,9 @@
     }
   ],
   "dependencies": {
-    "mbed": "*",
-    "mbed-net-socket-abstract": "~0.1.1"
+    "mbed-core": "~0.2.2",
+    "mbed-net-socket-abstract": "~0.1.1",
+    "minar" : "~0.4.0"
   },
   "scripts": {
     "testReporter": [

@@ -6,17 +6,20 @@
  */
 #include <stddef.h>
 #include <stdint.h>
+#include "mbed/FunctionPointer.h"
 #include "TCPAsynch.h"
 #include "TCPStream.h"
 
 namespace mbed {
-
+namespace Sockets {
+namespace v1 {
 /** \brief TCPListener: a TCP server socket
  *  The TCPListener listens for incoming connections.  Prior to listening, the
  *  TCPListener must be bound to a port and, optionally, an address.
  */
 class TCPListener: public TCPAsynch {
 public:
+    typedef FunctionPointer2<void, TCPListener *, void *> IncomingHandler_t;
     /**
      *  The TCP Listener constructor.
      * @param[in] stack the network stack to use
@@ -37,7 +40,7 @@ public:
      * @param[in] backlog The number of connection requests to keep in the backlog
      * @return SOCKET_ERROR_NONE on success, or an error code on failure
      */
-    socket_error_t start_listening(handler_t listenHandler, uint32_t backlog = 0);
+    socket_error_t start_listening(IncomingHandler_t &listenHandler, uint32_t backlog = 0);
     /**
      * Stop listening for incoming connections
      * After this call, the server will reject incoming connections until start_listening is called again
@@ -52,7 +55,8 @@ public:
      * @param new_impl
      * @return
      */
-    virtual TCPStream * accept(void* new_impl);
+    virtual TCPStream * accept(void *new_impl);
+    virtual void reject(void *new_impl);
 
 protected:
     /**
@@ -60,8 +64,10 @@ protected:
      * @param[in] ev the event to handle
      */
     void _eventHandler(struct socket_event *ev);
-    handler_t _onIncomming;
-};
 
-}
+    IncomingHandler_t _onIncoming;
+};
+};
+};
+};
 #endif // MBED_TCPListener_H

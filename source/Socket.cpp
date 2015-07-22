@@ -14,10 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <mbed-net-sockets/Socket.h>
-
-#include <mbed-net-socket-abstract/socket_api.h>
+#include "mbed-net-sockets/Socket.h"
+#include "minar/minar.h"
+#include "mbed-net-socket-abstract/socket_api.h"
 #include "cmsis.h"
+
+using namespace mbed::Sockets::v1;
 
 Socket::Socket(const socket_stack_t stack) :
     _onDNS(NULL), _onError(NULL), _onReadable(NULL), _onSent(NULL),
@@ -51,17 +53,11 @@ socket_error_t Socket::open(const socket_address_family_t af, const socket_proto
 
 bool Socket::error_check(socket_error_t err)
 {
-    struct socket_event e;
     if (err == SOCKET_ERROR_NONE) {
         return false;
     }
+    minar::Scheduler::postCallback(_onError.bind(this, err));
     // If there is an error, schedule an error event.
-    e.event = SOCKET_EVENT_ERROR;
-    e.i.e = err;
-    _socket.event = &e; // TODO: (CThunk upgrade/Alpha3)
-    _event = &e; // TODO: (CThunk upgrade/Alpha3)
-    _eventHandler(&e);
-    _event = NULL; // TODO: (CThunk upgrade/Alpha3)
     return true;
 }
 
@@ -72,19 +68,19 @@ void Socket::_eventHandler(struct socket_event *ev)
     case SOCKET_EVENT_TX_ERROR:
     case SOCKET_EVENT_ERROR:
         if (_onError)
-            _onError(ev->i.e);
+            minar::Scheduler::postCallback(_onError.bind(this, ev->i.e));
         break;
     case SOCKET_EVENT_RX_DONE:
         if(_onReadable)
-            _onReadable(SOCKET_ERROR_NONE);
+            minar::Scheduler::postCallback(_onReadable.bind(this));
         break;
     case SOCKET_EVENT_TX_DONE:
         if (_onSent)
-            _onSent(SOCKET_ERROR_NONE);
+            minar::Scheduler::postCallback(_onSent.bind(this, ev->i.t.sentbytes));
         break;
     case SOCKET_EVENT_DNS:
         if (_onDNS)
-            _onDNS(SOCKET_ERROR_NONE);
+            minar::Scheduler::postCallback(_onDNS.bind(this, ev->i.d.addr, ev->i.d.domain));
         break;
     case SOCKET_EVENT_CONNECT:
     case SOCKET_EVENT_DISCONNECT:
@@ -95,19 +91,19 @@ void Socket::_eventHandler(struct socket_event *ev)
     }
 }
 
-void Socket::setOnError(handler_t onError)
+void Socket::setOnError(ErrorHandler_t onError)
 {
     __disable_irq();
     _onError = onError;
     __enable_irq();
 }
-void Socket::setOnReadable(handler_t onReadable)
+void Socket::setOnReadable(ReadableHandler_t onReadable)
 {
     __disable_irq();
     _onReadable = onReadable;
     __enable_irq();
 }
-void Socket::setOnSent(handler_t onSent)
+void Socket::setOnSent(SentHandler_t onSent)
 {
     __disable_irq();
     _onSent = onSent;
@@ -124,13 +120,7 @@ void Socket::_nvEventHandler(void * arg)
     _event = NULL; // TODO: (CThunk upgrade/Alpha3)
 }
 
-socket_event_t * Socket::getEvent()
-{
-    // Note that events are only valid while in the event handler
-    return _event; // TODO: (CThunk upgrade/Alpha3)
-}
-
-socket_error_t Socket::resolve(const char* address, handler_t onDNS)
+socket_error_t Socket::resolve(const char* address, DNSHandler_t onDNS)
 {
     if (_socket.handler == NULL) {
         return SOCKET_ERROR_CLOSED;
@@ -143,6 +133,9 @@ socket_error_t Socket::resolve(const char* address, handler_t onDNS)
 socket_error_t Socket::bind(const char * addr, const uint16_t port)
 {
     SocketAddr tmp;
+    if (_socket.impl == NULL) {
+        return SOCKET_ERROR_NULL_PTR;
+    }
     socket_error_t err = _socket.api->str2addr(&_socket, tmp.getAddr(), addr);
     if (err != SOCKET_ERROR_NONE) {
         return err;
@@ -165,16 +158,25 @@ socket_error_t Socket::bind(const SocketAddr * addr, const uint16_t port)
 
 socket_error_t Socket::close()
 {
+    if (_socket.impl == NULL) {
+        return SOCKET_ERROR_NULL_PTR;
+    }
     return _socket.api->close(&_socket);
 }
 
 socket_error_t Socket::recv(void * buf, size_t *len)
 {
+    if (_socket.impl == NULL) {
+        return SOCKET_ERROR_NULL_PTR;
+    }
     return _socket.api->recv(&_socket, buf, len);
 }
 socket_error_t Socket::recv_from(void * buf, size_t *len, SocketAddr *remote_addr, uint16_t *remote_port)
 {
     struct socket_addr addr;
+    if (_socket.impl == NULL) {
+        return SOCKET_ERROR_NULL_PTR;
+    }
     socket_error_t err = _socket.api->recv_from(&_socket, buf, len, &addr, remote_port);
     remote_addr->setAddr(&addr);
     return err;
@@ -182,13 +184,22 @@ socket_error_t Socket::recv_from(void * buf, size_t *len, SocketAddr *remote_add
 
 socket_error_t Socket::send(const void * buf, const size_t len)
 {
+    if (_socket.impl == NULL) {
+        return SOCKET_ERROR_NULL_PTR;
+    }
     return _socket.api->send(&_socket, buf, len);
 }
 socket_error_t Socket::send_to(const void * buf, const size_t len, const SocketAddr *remote_addr, uint16_t remote_port)
 {
+    if (_socket.impl == NULL) {
+        return SOCKET_ERROR_NULL_PTR;
+    }
     return _socket.api->send_to(&_socket, buf, len, remote_addr->getAddr(), remote_port);
 }
 
 bool Socket::isConnected() const {
+    if (_socket.impl == NULL) {
+        return false;
+    }
     return _socket.api->is_connected(&_socket);
 }

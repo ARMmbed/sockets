@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-#include <Ticker.h>
-#include <mbed-net-sockets/TCPAsynch.h>
-#include <mbed-net-socket-abstract/socket_api.h>
+#include "Ticker.h"
+#include "mbed-net-sockets/TCPAsynch.h"
+#include "mbed-net-socket-abstract/socket_api.h"
 
-using namespace mbed;
+using namespace mbed::Sockets::v1;
 
 uintptr_t TCPAsynch::_TCPSockets = 0;
 Ticker TCPAsynch::_ticker;
-handler_t TCPAsynch::_tick_handler = NULL;
+FunctionPointer0<void> TCPAsynch::_tick_handler(NULL);
 
 TCPAsynch::TCPAsynch(const socket_stack_t stack) :
         Socket(stack)

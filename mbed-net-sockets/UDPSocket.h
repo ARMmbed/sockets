@@ -22,6 +22,9 @@
 #include <mbed-net-sockets/Socket.h>
 
 namespace mbed {
+namespace Sockets {
+namespace v1 {
+
 /* UDP socket class */
 class UDPSocket: public Socket {
 public:
@@ -55,6 +58,7 @@ public:
      */
     socket_error_t connect(const SocketAddr *address, const uint16_t port);
 };
-
-}; // namespace mbed
+}
+}
+} // namespace mbed
 #endif // __MBED_NET_SOCKETS_UDPSOCKET_H__
