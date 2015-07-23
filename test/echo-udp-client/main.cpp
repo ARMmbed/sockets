@@ -10,7 +10,7 @@
 
 #define CHECK(RC, STEP)       if (RC < 0) error(STEP": %d\r\n", RC)
 
-using namespace mbed::Sockets::v1;
+using namespace mbed::Sockets::v0;
 
 namespace {
     const int BUFFER_SIZE = 64;

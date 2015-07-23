@@ -19,7 +19,7 @@
 #include "mbed-net-socket-abstract/socket_api.h"
 #include "cmsis.h"
 
-using namespace mbed::Sockets::v1;
+using namespace mbed::Sockets::v0;
 
 Socket::Socket(const socket_stack_t stack) :
     _onDNS(NULL), _onError(NULL), _onReadable(NULL), _onSent(NULL),

@@ -23,7 +23,7 @@
 
 namespace mbed {
 namespace Sockets {
-namespace v1 {
+namespace v0 {
 
 /* UDP socket class */
 class UDPSocket: public Socket {
@@ -58,7 +58,7 @@ public:
      */
     socket_error_t connect(const SocketAddr *address, const uint16_t port);
 };
-}
-}
+} // namespace v0
+} // namespace Sockets
 } // namespace mbed
 #endif // __MBED_NET_SOCKETS_UDPSOCKET_H__

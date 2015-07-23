@@ -16,7 +16,7 @@ struct s_ip_address {
 char out_buffer[] = "Hello World\n";
 char buffer[256];
 
-using namespace mbed::Sockets::v1;
+using namespace mbed::Sockets::v0;
 
 EthernetInterface eth;
 

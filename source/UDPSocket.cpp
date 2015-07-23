@@ -17,7 +17,7 @@
 #include "mbed-net-sockets/UDPSocket.h"
 #include "mbed-net-socket-abstract/socket_api.h"
 
-using namespace mbed::Sockets::v1;
+using namespace mbed::Sockets::v0;
 UDPSocket::UDPSocket(socket_stack_t stack):
 /* Store the default handler */
     Socket(stack)

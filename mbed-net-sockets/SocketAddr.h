@@ -21,7 +21,7 @@
 
 namespace mbed {
 namespace Sockets {
-namespace v1 {
+namespace v0 {
 
 class SocketAddr {
 public:
@@ -37,7 +37,7 @@ public:
 protected:
     struct socket_addr _addr;
 };
-}
-}
+} // namespace v0
+} // namespace Sockets
 } // namespace mbed
 #endif // __MBED_NET_SOCKETS_SOCKETADDR_H__

@@ -19,7 +19,7 @@
 #include "mbed-net-socket-abstract/socket_api.h"
 #include <stdio.h>
 
-using namespace mbed::Sockets::v1;
+using namespace mbed::Sockets::v0;
 void SocketAddr::setAddr(const struct socket_addr *addr) {
     socket_addr_copy(&_addr, addr);
 }

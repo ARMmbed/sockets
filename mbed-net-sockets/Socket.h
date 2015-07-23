@@ -28,7 +28,7 @@
 
 namespace mbed {
 namespace Sockets {
-namespace v1 {
+namespace v0 {
 
 /**
  * \brief Socket implements most of the interfaces required for sockets.
@@ -207,7 +207,7 @@ private:
      */
     void _nvEventHandler(void * arg);
 };
-};
-};
-}; // namespace mbed
+} // namespace v0
+} // namespace Sockets
+} // namespace mbed
 #endif // __MBED_NET_SOCKETS_SOCKET_H__

@@ -24,7 +24,7 @@
 
 namespace mbed {
 namespace Sockets {
-namespace v1 {
+namespace v0 {
 class TCPAsynch: public Socket {
 protected:
     TCPAsynch(const socket_stack_t stack);
@@ -41,7 +41,7 @@ protected:
     // sizeof(TCPAsynch) > 0
     static uintptr_t _TCPSockets;
 };
-};
-};
-}; //namespace mbed
+} // namespace v0
+} // namespace Sockets
+} // namespace mbed
 #endif // __MBED_NET_SOCKETS_TCP_ASYNCH__

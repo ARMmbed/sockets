@@ -7,7 +7,7 @@
 #include "mbed-net-socket-abstract/socket_api.h"
 #include "minar/minar.h"
 
-using namespace mbed::Sockets::v1;
+using namespace mbed::Sockets::v0;
 
 
 TCPListener::TCPListener(const socket_stack_t stack) :
@@ -19,7 +19,7 @@ TCPListener::~TCPListener()
     stop_listening();
 }
 
-socket_error_t TCPListener::start_listening(IncomingHandler_t &listenHandler, uint32_t backlog)
+socket_error_t TCPListener::start_listening(IncomingHandler_t listenHandler, uint32_t backlog)
 {
     _onIncoming = listenHandler;
     socket_error_t err = _socket.api->start_listen(&_socket, backlog);
@@ -38,7 +38,16 @@ TCPStream * TCPListener::accept(void *new_impl)
     new_socket.family = _socket.family;
     return new TCPStream(&new_socket);
 }
-
+void TCPListener::reject(void * impl)
+{
+    //TODO: Add support for reject
+    struct socket s;
+    s.impl = impl;
+    s.stack = _socket.stack;
+    s.api = _socket.api;
+    s.family = _socket.family;
+    s.api->close(&s);
+}
 
 void TCPListener::_eventHandler(struct socket_event *ev)
 {

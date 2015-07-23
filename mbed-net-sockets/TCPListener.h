@@ -12,7 +12,7 @@
 
 namespace mbed {
 namespace Sockets {
-namespace v1 {
+namespace v0 {
 /** \brief TCPListener: a TCP server socket
  *  The TCPListener listens for incoming connections.  Prior to listening, the
  *  TCPListener must be bound to a port and, optionally, an address.
@@ -40,7 +40,7 @@ public:
      * @param[in] backlog The number of connection requests to keep in the backlog
      * @return SOCKET_ERROR_NONE on success, or an error code on failure
      */
-    socket_error_t start_listening(IncomingHandler_t &listenHandler, uint32_t backlog = 0);
+    socket_error_t start_listening(IncomingHandler_t listenHandler, uint32_t backlog = 0);
     /**
      * Stop listening for incoming connections
      * After this call, the server will reject incoming connections until start_listening is called again
@@ -67,7 +67,7 @@ protected:
 
     IncomingHandler_t _onIncoming;
 };
-};
-};
-};
+} // namespace v0
+} // namespace Sockets
+} // namespace mbed
 #endif // MBED_TCPListener_H

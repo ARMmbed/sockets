@@ -19,7 +19,7 @@
 #include "minar/minar.h"
 #include "mbed-net-sockets/SocketAddr.h"
 
-using namespace mbed::Sockets::v1;
+using namespace mbed::Sockets::v0;
 
 TCPStream::TCPStream(const socket_stack_t stack) :
         /* Store the default handler */

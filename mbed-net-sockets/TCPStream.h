@@ -23,7 +23,7 @@
 
 namespace mbed {
 namespace Sockets {
-namespace v1 {
+namespace v0 {
 
 class TCPStream: public TCPAsynch {
 public:
@@ -77,7 +77,7 @@ protected:
     ConnectHandler_t _onConnect;
     DisconnectHandler_t _onDisconnect;
 };
-};
-};
-}; // namespace mbed
+} // namespace v0
+} // namespace Sockets
+} // namespace mbed
 #endif // __MBED_NET_SOCKETS_TCPSTREAM_H__

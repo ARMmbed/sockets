@@ -19,7 +19,7 @@
 #include "mbed-net-sockets/TCPAsynch.h"
 #include "mbed-net-socket-abstract/socket_api.h"
 
-using namespace mbed::Sockets::v1;
+using namespace mbed::Sockets::v0;
 
 uintptr_t TCPAsynch::_TCPSockets = 0;
 Ticker TCPAsynch::_ticker;
