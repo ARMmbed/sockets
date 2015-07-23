@@ -14,34 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef __MBED_NET_SOCKETS_TCP_ASYNCH__
-#define __MBED_NET_SOCKETS_TCP_ASYNCH__
+#ifndef __MBED_NET_SOCKETS_TCP_ASYNCH__H__
+#define __MBED_NET_SOCKETS_TCP_ASYNCH__H__
 
-#include <mbed-net-sockets/Socket.h>
-#include <mbed-net-socket-abstract/socket_api.h>
+/* Include all versions of the API */
+#include "v0/TCPAsynch.h"
 
-#include "Ticker.h"
-
+/* Set the current namespace */
 namespace mbed {
-namespace Sockets {
-namespace v0 {
-class TCPAsynch: public Socket {
-protected:
-    TCPAsynch(const socket_stack_t stack);
-    ~TCPAsynch();
+    namespace Sockets {
+        namespace current {
+            using namespace mbed::Sockets::v0;
+        }
+    }
+}
 
-public:
-    virtual socket_error_t open(const socket_address_family_t af);
-protected:
-    static Ticker _ticker;
-    static FunctionPointer0<void> _tick_handler;
-    // uintptr_t is used to guarantee that there will always be a large enough
-    // counter to avoid overflows. Memory allocation will always fail before
-    // counter overflow if the counter is the same size as the pointer type and
-    // sizeof(TCPAsynch) > 0
-    static uintptr_t _TCPSockets;
-};
-} // namespace v0
-} // namespace Sockets
-} // namespace mbed
-#endif // __MBED_NET_SOCKETS_TCP_ASYNCH__
+#endif // __MBED_NET_SOCKETS_TCP_ASYNCH__H__

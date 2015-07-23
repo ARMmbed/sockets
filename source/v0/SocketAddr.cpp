@@ -14,12 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "mbed-net-sockets/SocketAddr.h"
 #include <string.h>
-#include "mbed-net-socket-abstract/socket_api.h"
 #include <stdio.h>
 
+#include "mbed-net-sockets/v0/SocketAddr.h"
+#include "mbed-net-socket-abstract/socket_api.h"
+
 using namespace mbed::Sockets::v0;
+
 void SocketAddr::setAddr(const struct socket_addr *addr) {
     socket_addr_copy(&_addr, addr);
 }

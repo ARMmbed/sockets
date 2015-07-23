@@ -17,27 +17,16 @@
 #ifndef __MBED_NET_SOCKETS_SOCKETADDR_H__
 #define __MBED_NET_SOCKETS_SOCKETADDR_H__
 
-#include "mbed-net-socket-abstract/socket_types.h"
+/* Include all versions of the API */
+#include "v0/SocketAddr.h"
 
+/* Set the current namespace */
 namespace mbed {
-namespace Sockets {
-namespace v0 {
+    namespace Sockets {
+        namespace current {
+            using namespace mbed::Sockets::v0;
+        }
+    }
+}
 
-class SocketAddr {
-public:
-    struct socket_addr * getAddr() {return &_addr;}
-    const struct socket_addr * getAddr() const {return &_addr;}
-    void setAddr(const struct socket_addr *addr);
-    void setAddr(const SocketAddr *addr);
-    size_t getAddrSize() const {return sizeof(_addr.ipv6be);}
-    bool is_v4();
-
-    int fmtIPv4(char *buf, size_t size);
-    int fmtIPv6(char *buf, size_t size);
-protected:
-    struct socket_addr _addr;
-};
-} // namespace v0
-} // namespace Sockets
-} // namespace mbed
 #endif // __MBED_NET_SOCKETS_SOCKETADDR_H__
