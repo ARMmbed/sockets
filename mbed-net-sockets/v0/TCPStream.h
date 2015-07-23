@@ -19,7 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "Ticker.h"
-#include "mbed-net-sockets/TCPAsynch.h"
+#include "TCPAsynch.h"
 
 namespace mbed {
 namespace Sockets {

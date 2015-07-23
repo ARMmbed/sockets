@@ -16,7 +16,7 @@
  */
 
 #include "Ticker.h"
-#include "mbed-net-sockets/TCPAsynch.h"
+#include "mbed-net-sockets/v0/TCPAsynch.h"
 #include "mbed-net-socket-abstract/socket_api.h"
 
 using namespace mbed::Sockets::v0;

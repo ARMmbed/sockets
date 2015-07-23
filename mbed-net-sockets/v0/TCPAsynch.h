@@ -17,8 +17,8 @@
 #ifndef __MBED_NET_SOCKETS_TCP_ASYNCH__
 #define __MBED_NET_SOCKETS_TCP_ASYNCH__
 
-#include <mbed-net-sockets/Socket.h>
-#include <mbed-net-socket-abstract/socket_api.h>
+#include "Socket.h"
+#include "mbed-net-socket-abstract/socket_api.h"
 
 #include "Ticker.h"
 

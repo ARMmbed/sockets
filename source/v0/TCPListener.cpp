@@ -2,8 +2,8 @@
  * PackageLicenseDeclared: Apache-2.0
  * Copyright 2015 ARM Holdings PLC
  */
-#include "mbed-net-sockets/TCPListener.h"
-#include "mbed-net-sockets/TCPStream.h"
+#include "mbed-net-sockets/v0/TCPListener.h"
+#include "mbed-net-sockets/v0/TCPStream.h"
 #include "mbed-net-socket-abstract/socket_api.h"
 #include "minar/minar.h"
 

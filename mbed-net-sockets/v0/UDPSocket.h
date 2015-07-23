@@ -19,7 +19,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <mbed-net-sockets/Socket.h>
+#include "Socket.h"
 
 namespace mbed {
 namespace Sockets {
