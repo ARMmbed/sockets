@@ -17,9 +17,11 @@
 #ifndef __MBED_NET_SOCKETS_SOCKETADDR_H__
 #define __MBED_NET_SOCKETS_SOCKETADDR_H__
 
-#include <mbed-net-socket-abstract/socket_types.h>
+#include "mbed-net-socket-abstract/socket_types.h"
 
 namespace mbed {
+namespace Sockets {
+namespace v0 {
 
 class SocketAddr {
 public:
@@ -35,6 +37,7 @@ public:
 protected:
     struct socket_addr _addr;
 };
-
-}; // namespace mbed
+} // namespace v0
+} // namespace Sockets
+} // namespace mbed
 #endif // __MBED_NET_SOCKETS_SOCKETADDR_H__

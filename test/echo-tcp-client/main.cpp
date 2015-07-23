@@ -4,6 +4,7 @@
 #include "mbed-net-socket-abstract/test/ctest_env.h"
 #include "mbed-net-lwip/lwipv4_init.h"
 #include "EthernetInterface.h"
+#include "minar/minar.h"
 
 struct s_ip_address {
     int ip_1;
@@ -15,53 +16,72 @@ struct s_ip_address {
 char out_buffer[] = "Hello World\n";
 char buffer[256];
 
+using namespace mbed::Sockets::v0;
+
+EthernetInterface eth;
+
+class TCPEchoClient;
+
 class TCPEchoClient {
 public:
     TCPEchoClient(socket_stack_t stack) :
         _stream(stack), _done(false), _disconnected(true)
         {
+            _stream.setOnError(TCPStream::ErrorHandler_t(this, &TCPEchoClient::onError));
         }
-    socket_error_t start_test(char * host_addr, uint16_t port)
+    void onError(Socket *s, socket_error_t err) {
+        (void) s;
+        printf("MBED: Socket Error: %s (%d)\r\n", socket_strerror(err), err);
+        _done = true;
+        minar::Scheduler::stop();
+    }
+    void start_test(char * host_addr, uint16_t port)
     {
         _port = port;
         _done = false;
         _disconnected = true;
-        return _stream.resolve(host_addr,handler_t(this, &TCPEchoClient::onDNS));
-    }
-    void onDNS(socket_error_t err)
-    {
-        TEST_EQ(err, SOCKET_ERROR_NONE);
-        /* Extract the Socket event to read the resolved address */
-        socket_event_t *event = _stream.getEvent();
-        _resolvedAddr.setAddr(&event->i.d.addr);
-        /* TODO: add support for getting AF from addr */
-        /* Open the socket */
-        err = _stream.open(SOCKET_AF_INET4);
-        TEST_EQ(err, SOCKET_ERROR_NONE);
-        /* Register the read handler */
-        _stream.setOnReadable(handler_t(this, &TCPEchoClient::onRx));
-        _stream.setOnSent(handler_t(this, &TCPEchoClient::onSent));
-        _stream.setOnDisconnect(handler_t(this, &TCPEchoClient::onDisconnect));
-        /* Send the query packet to the remote host */
-        err = _stream.connect(&_resolvedAddr, _port, handler_t(this,&TCPEchoClient::onConnect));
-        if(!TEST_EQ(err, SOCKET_ERROR_NONE)) {
-            printf("MBED: Expected %d, got %d (%s)\r\n", SOCKET_ERROR_NONE, err, socket_strerror(err));
+        socket_error_t err = _stream.resolve(host_addr,TCPStream::DNSHandler_t(this, &TCPEchoClient::onDNS));
+        if (!TEST_EQ(err, SOCKET_ERROR_NONE)) {
+            printf("MBED: TCPClient unable to connect to %s:%d" NL, buffer, port);
+            onError(&_stream, err);
         }
     }
-    void onConnect(socket_error_t err)
+    void onDNS(Socket *s, struct socket_addr sa, const char* domain)
     {
+        (void) s;
+        _resolvedAddr.setAddr(&sa);
+        /* TODO: add support for getting AF from addr */
+        /* Open the socket */
+        _resolvedAddr.fmtIPv6(buffer, sizeof(buffer));
+        printf("MBED: Resolved %s to %s\r\n", domain, buffer);
+        socket_error_t err = _stream.open(SOCKET_AF_INET4);
         TEST_EQ(err, SOCKET_ERROR_NONE);
+        /* Register the read handler */
+        _stream.setOnReadable(TCPStream::ReadableHandler_t(this, &TCPEchoClient::onRx));
+        _stream.setOnSent(TCPStream::SentHandler_t(this, &TCPEchoClient::onSent));
+        _stream.setOnDisconnect(TCPStream::DisconnectHandler_t(this, &TCPEchoClient::onDisconnect));
+        /* Send the query packet to the remote host */
+        err = _stream.connect(_resolvedAddr, _port, TCPStream::ConnectHandler_t(this,&TCPEchoClient::onConnect));
+        if(!TEST_EQ(err, SOCKET_ERROR_NONE)) {
+            printf("MBED: Expected %d, got %d (%s)\r\n", SOCKET_ERROR_NONE, err, socket_strerror(err));
+            onError(&_stream, err);
+        }
+    }
+    void onConnect(TCPStream *s)
+    {
+        (void) s;
         _disconnected = false;
         _unacked += sizeof(out_buffer) - 1;
-        err = _stream.send(out_buffer, sizeof(out_buffer) - 1);
+        socket_error_t err = _stream.send(out_buffer, sizeof(out_buffer) - 1);
 
         TEST_EQ(err, SOCKET_ERROR_NONE);
     }
-    void onRx(socket_error_t err)
+    void onRx(Socket* s)
     {
-        TEST_EQ(err, SOCKET_ERROR_NONE);
+        (void) s;
         size_t n = sizeof(buffer)-1;
-        err = _stream.recv(buffer, &n);
+        socket_error_t err = _stream.recv(buffer, &n);
+        TEST_EQ(err, SOCKET_ERROR_NONE);
         buffer[n] = 0;
         char out_success[] = "{{success}}\n{{end}}\n";
         char out_failure[] = "{{failure}}\n{{end}}\n";
@@ -75,6 +95,7 @@ public:
                 _unacked += sizeof(out_success) - 1;
                 err = _stream.send(out_success, sizeof(out_success) - 1);
                 _done = true;
+                minar::Scheduler::stop();
                 TEST_EQ(err, SOCKET_ERROR_NONE);
             }
         }
@@ -85,22 +106,18 @@ public:
             TEST_EQ(err, SOCKET_ERROR_NONE);
         }
     }
-    void onSent(socket_error_t err)
+    void onSent(Socket *s, uint16_t nbytes)
     {
-        (void)err;
-        socket_event_t *event = _stream.getEvent();
-        _unacked -= event->i.t.sentbytes;
+        (void) s;
+        _unacked -= nbytes;
         if (_done && (_unacked == 0)) {
             _stream.close();
         }
     }
-    void onDisconnect(socket_error_t err)
+    void onDisconnect(TCPStream *s)
     {
-        (void) err;
+        (void) s;
         _disconnected = true;
-    }
-    bool isDone() {
-        return _done && (_unacked == 0) && _disconnected;
     }
 protected:
     TCPStream _stream;
@@ -111,13 +128,10 @@ protected:
     volatile size_t _unacked;
 };
 
-
 int main() {
     TCPEchoClient *client;
     char buffer[256];
     int port;
-    EthernetInterface eth;
-
 
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(tcpecho_client_auto);
@@ -140,11 +154,12 @@ int main() {
     sprintf(buffer, "%d.%d.%d.%d", ip_addr.ip_1, ip_addr.ip_2, ip_addr.ip_3, ip_addr.ip_4);
     client = new TCPEchoClient(SOCKET_STACK_LWIP_IPV4);
 
-    err = client->start_test(buffer,port);
-    if (!TEST_EQ(err, SOCKET_ERROR_NONE)) {
-        printf("TCPCllient unable to connect to %s:%d" NL, buffer, port);
+    {
+        FunctionPointer2<void, char *, uint16_t> fp(client, &TCPEchoClient::start_test);
+        minar::Scheduler::postCallback(fp.bind(buffer, port));
     }
-    while (!client->isDone()) __WFI();
+
+    minar::Scheduler::start();
 
     delete client;
     eth.disconnect();

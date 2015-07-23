@@ -26,8 +26,9 @@
 #include <mbed-net-socket-abstract/socket_types.h>
 #include "SocketAddr.h"
 
-typedef FunctionPointer1<void,socket_error_t> handler_t;
 namespace mbed {
+namespace Sockets {
+namespace v0 {
 
 /**
  * \brief Socket implements most of the interfaces required for sockets.
@@ -35,6 +36,11 @@ namespace mbed {
  * common functionality for derived classes.
  */
 class Socket {
+public:
+    typedef FunctionPointer3<void, Socket *, struct socket_addr, const char *> DNSHandler_t;
+    typedef FunctionPointer2<void, Socket *, socket_error_t> ErrorHandler_t;
+    typedef FunctionPointer1<void, Socket *> ReadableHandler_t;
+    typedef FunctionPointer2<void, Socket *, uint16_t> SentHandler_t;
 protected:
     /**
      * Socket constructor
@@ -53,11 +59,6 @@ protected:
     virtual ~Socket();
 public:
     /**
-     * Extract the current event from the C socket implementation
-     * @return an event structure containing an event type and other potentially relevant information
-     */
-    struct socket_event *getEvent(); // TODO: (CThunk upgrade/Alpha3)
-    /**
      * Start the process of resolving a domain name.
      * If the input is a text IP address, an event is queued immediately; otherwise, onDNS is
      * queued as soon as DNS is resolved.
@@ -66,7 +67,7 @@ public:
      * @param[in] onDNS The handler to call when the name is resolved
      * @return SOCKET_ERROR_NONE on success, or an error code on failure
      */
-    socket_error_t resolve(const char* address, handler_t onDNS);
+    socket_error_t resolve(const char* address, DNSHandler_t onDNS);
     /**
      * Open the socket.
      * Instantiates and initializes the underlying socket. Receive is started immediately after
@@ -99,13 +100,13 @@ public:
      * Errors are ignored if onError is not set.
      * @param[in] onError
      */
-    virtual void setOnError(handler_t onError);
+    virtual void setOnError(ErrorHandler_t onError);
     /**
      * Set the received data handler
      * Received data is queued until it is read using recv or recv_from.
      * @param[in] onReadable the handler to use for receive events
      */
-    virtual void setOnReadable(handler_t onReadable);
+    virtual void setOnReadable(ReadableHandler_t onReadable);
     /**
      * Receive a message
      * @param[out] buf The buffer to fill
@@ -134,7 +135,7 @@ public:
      * the network stack in UDP sockets.
      * @param[in] onSent The handler to call when a send completes
      */
-    virtual void setOnSent(handler_t onSent);
+    virtual void setOnSent(SentHandler_t onSent);
     /**
      * Send a message
      * Sends a message over an open connection.  This call is valid for UDP sockets, provided that connect()
@@ -191,10 +192,10 @@ protected:
     virtual void _eventHandler(struct socket_event *ev);
 
 protected:
-    handler_t _onDNS;
-    handler_t _onError;
-    handler_t _onReadable;
-    handler_t _onSent;
+    DNSHandler_t      _onDNS;
+    ErrorHandler_t    _onError;
+    ReadableHandler_t _onReadable;
+    SentHandler_t     _onSent;
 
     CThunk<Socket> _irq;
     struct socket _socket;
@@ -206,6 +207,7 @@ private:
      */
     void _nvEventHandler(void * arg);
 };
-
-}; // namespace mbed
+} // namespace v0
+} // namespace Sockets
+} // namespace mbed
 #endif // __MBED_NET_SOCKETS_SOCKET_H__

@@ -18,13 +18,17 @@
 #define __MBED_NET_SOCKETS_TCPSTREAM_H__
 #include <stddef.h>
 #include <stdint.h>
-#include <Ticker.h>
-#include <mbed-net-sockets/TCPAsynch.h>
-#include "buffer.h"
+#include "Ticker.h"
+#include "mbed-net-sockets/TCPAsynch.h"
 
 namespace mbed {
+namespace Sockets {
+namespace v0 {
+
 class TCPStream: public TCPAsynch {
 public:
+    typedef FunctionPointer1<void, TCPStream *> ConnectHandler_t;
+    typedef FunctionPointer1<void, TCPStream *> DisconnectHandler_t;
     /**
      * TCP socket constructor.
      * Does not allocate an underlying TCP Socket instance.
@@ -53,14 +57,14 @@ public:
      * @param[in] onConnect
      * @return SOCKET_ERROR_NONE on success, or an error code on failure
      */
-    virtual socket_error_t connect(const SocketAddr *address, const uint16_t port,
-            const handler_t onConnect);
+    virtual socket_error_t connect(const SocketAddr &address, const uint16_t port,
+            const ConnectHandler_t &onConnect);
     /**
      * Set a disconnect handler
      * This handler only needs to be configured once onConnect has been called
      * @param[in] h the handler to call when a connection is disconnected
      */
-    virtual void setOnDisconnect(const handler_t h) { _onDisconnect = h; }
+    virtual void setOnDisconnect(const DisconnectHandler_t h) { _onDisconnect = h; }
 
 protected:
     /**
@@ -70,9 +74,10 @@ protected:
     void _eventHandler(struct socket_event *ev);
 
 protected:
-    handler_t _onConnect;
-    handler_t _onDisconnect;
+    ConnectHandler_t _onConnect;
+    DisconnectHandler_t _onDisconnect;
 };
-
-}; // namespace mbed
+} // namespace v0
+} // namespace Sockets
+} // namespace mbed
 #endif // __MBED_NET_SOCKETS_TCPSTREAM_H__

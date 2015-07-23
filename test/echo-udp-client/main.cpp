@@ -3,10 +3,14 @@
 #include "mbed-net-socket-abstract/test/ctest_env.h"
 #include <algorithm>
 #include "mbed-net-sockets/UDPSocket.h"
+#include "mbed-net-socket-abstract/socket_api.h"
 #include "EthernetInterface.h"
 #include "mbed-net-lwip/lwipv4_init.h"
+#include "minar/minar.h"
 
 #define CHECK(RC, STEP)       if (RC < 0) error(STEP": %d\r\n", RC)
+
+using namespace mbed::Sockets::v0;
 
 namespace {
     const int BUFFER_SIZE = 64;
@@ -35,34 +39,45 @@ public:
     UDPEchoClient(socket_stack_t stack) :
         _usock(stack)
     {
+        _usock.setOnError(UDPSocket::ErrorHandler_t(this, &UDPEchoClient::onError));
     }
-    socket_error_t start_test(char * host_addr, uint16_t port)
+    void start_test(char * host_addr, uint16_t port)
     {
         loop_ctr = 0;
         _port = port;
-        return _usock.resolve(host_addr,handler_t(this, &UDPEchoClient::onDNS));
+        socket_error_t err = _usock.resolve(host_addr,UDPSocket::DNSHandler_t(this, &UDPEchoClient::onDNS));
+        if(!TEST_EQ(err, SOCKET_ERROR_NONE)) {
+            printf("MBED: Failed to resolve %s\r\n", host_addr);
+            onError(&_usock, err);
+        }
     }
-    void onDNS(socket_error_t err)
+    void onError(Socket *s, socket_error_t err) {
+        (void) s;
+        printf("MBED: Socket Error: %s (%d)\r\n", socket_strerror(err), err);
+        minar::Scheduler::stop();
+    }
+    void onDNS(Socket *s, struct socket_addr sa, const char * domain)
     {
-        TEST_EQ(err, SOCKET_ERROR_NONE);
+        (void) s;
         /* Extract the Socket event to read the resolved address */
-        socket_event_t *event = _usock.getEvent();
-        _resolvedAddr.setAddr(&event->i.d.addr);
+        _resolvedAddr.setAddr(&sa);
+        _resolvedAddr.fmtIPv6(out_buffer, sizeof(out_buffer));
+        printf("MBED: Resolved %s to %s\r\n", domain, out_buffer);
+
         /* TODO: add support for getting AF from addr */
-        err = _usock.open(SOCKET_AF_INET4);
+        socket_error_t err = _usock.open(SOCKET_AF_INET4);
         TEST_EQ(err, SOCKET_ERROR_NONE);
         /* Register the read handler */
-        _usock.setOnReadable(handler_t(this, &UDPEchoClient::onRx));
+        _usock.setOnReadable(UDPSocket::ReadableHandler_t(this, &UDPEchoClient::onRx));
         /* Send the query packet to the remote host */
         err = send_test();
         TEST_EQ(err, SOCKET_ERROR_NONE);
     }
-    void onRx(socket_error_t err)
+    void onRx(Socket *s)
     {
-        TEST_EQ(err, SOCKET_ERROR_NONE);
-
+        (void) s;
         unsigned int n = sizeof(buffer);
-        err = _usock.recv(buffer, &n);
+        socket_error_t err = _usock.recv(buffer, &n);
         TEST_EQ(err, SOCKET_ERROR_NONE);
 
         int rc = memcmp(buffer, out_buffer, min(BUFFER_SIZE,n));
@@ -78,6 +93,7 @@ public:
             if (notify_completion_str(TEST_RESULT(), buffer)) {
                 _usock.send_to(buffer, strlen(buffer), &_resolvedAddr, _port);
                 _usock.close();
+                minar::Scheduler::stop();
             }
         }
     }
@@ -134,11 +150,12 @@ int main() {
     printf("MBED: UDPClient IP Address is %s\r\n", eth.getIPAddress());
     sprintf(buffer, "%d.%d.%d.%d", ip_addr.ip_1, ip_addr.ip_2, ip_addr.ip_3, ip_addr.ip_4);
 
-    err = ec.start_test(buffer, port);
-    TEST_EQ(err, SOCKET_ERROR_NONE);
-    while (!ec.isDone() && !ec.isError()) {
-        __WFI();
+    {
+        FunctionPointer2<void, char *, uint16_t> fp(&ec, &UDPEchoClient::start_test);
+        minar::Scheduler::postCallback(fp.bind(buffer, port));
     }
+
+    minar::Scheduler::start();
 
     eth.disconnect();
     MBED_HOSTTEST_RESULT(TEST_RESULT());
