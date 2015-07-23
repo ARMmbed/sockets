@@ -14,8 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef __MBED_NET_SOCKETS_SOCKET_H__
-#define __MBED_NET_SOCKETS_SOCKET_H__
+#ifndef __MBED_NET_SOCKETS_V0_SOCKET_H__
+#define __MBED_NET_SOCKETS_V0_SOCKET_H__
 
 
 #include <stddef.h>
@@ -210,4 +210,4 @@ private:
 } // namespace v0
 } // namespace Sockets
 } // namespace mbed
-#endif // __MBED_NET_SOCKETS_SOCKET_H__
+#endif // __MBED_NET_SOCKETS_V0_SOCKET_H__

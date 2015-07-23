@@ -14,8 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef __MBED_NET_SOCKETS_TCP_ASYNCH__
-#define __MBED_NET_SOCKETS_TCP_ASYNCH__
+#ifndef __MBED_NET_SOCKETS_V0_TCP_ASYNCH__
+#define __MBED_NET_SOCKETS_V0_TCP_ASYNCH__
 
 #include "Socket.h"
 #include "mbed-net-socket-abstract/socket_api.h"
@@ -44,4 +44,4 @@ protected:
 } // namespace v0
 } // namespace Sockets
 } // namespace mbed
-#endif // __MBED_NET_SOCKETS_TCP_ASYNCH__
+#endif // __MBED_NET_SOCKETS_V0_TCP_ASYNCH__
