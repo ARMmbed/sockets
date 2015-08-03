@@ -67,7 +67,7 @@ public:
      * @param[in] onDNS The handler to call when the name is resolved
      * @return SOCKET_ERROR_NONE on success, or an error code on failure
      */
-    virtual socket_error_t resolve(const char* address, DNSHandler_t &onDNS);
+    virtual socket_error_t resolve(const char* address, const DNSHandler_t &onDNS);
     /**
      * Open the socket.
      * Instantiates and initializes the underlying socket. Receive is started immediately after
@@ -100,13 +100,13 @@ public:
      * Errors are ignored if onError is not set.
      * @param[in] onError
      */
-    virtual void setOnError(ErrorHandler_t &onError);
+    virtual void setOnError(const ErrorHandler_t &onError);
     /**
      * Set the received data handler
      * Received data is queued until it is read using recv or recv_from.
      * @param[in] onReadable the handler to use for receive events
      */
-    virtual void setOnReadable(ReadableHandler_t &onReadable);
+    virtual void setOnReadable(const ReadableHandler_t &onReadable);
     /**
      * Receive a message
      * @param[out] buf The buffer to fill
@@ -135,7 +135,7 @@ public:
      * the network stack in UDP sockets.
      * @param[in] onSent The handler to call when a send completes
      */
-    virtual void setOnSent(SentHandler_t &onSent);
+    virtual void setOnSent(const SentHandler_t &onSent);
     /**
      * Send a message
      * Sends a message over an open connection.  This call is valid for UDP sockets, provided that connect()

@@ -16,9 +16,9 @@
     }
   ],
   "dependencies": {
-    "mbed-drivers": "~0.2.2",
+    "mbed-drivers": "~0.4.0",
     "sal": "~0.1.1",
-    "minar": "~0.4.0"
+    "minar": "~0.5.0"
   },
   "scripts": {
     "testReporter": [
