@@ -203,3 +203,24 @@ bool Socket::isConnected() const {
     }
     return _socket.api->is_connected(&_socket);
 }
+
+socket_error_t Socket::getLocalAddr(SocketAddr *addr) const
+{
+    if (_socket.api == NULL) return SOCKET_ERROR_NULL_PTR;
+    return socket->get_local_addr(&_socket, addr->getAddr());
+}
+socket_error_t Socket::getLocalPort(uint16_t *port) const
+{
+    if (_socket.api == NULL) return SOCKET_ERROR_NULL_PTR;
+    return socket->get_local_port(&_socket, port);
+}
+socket_error_t Socket::getRemoteAddr(SocketAddr *addr) const
+{
+    if (_socket.api == NULL) return SOCKET_ERROR_NULL_PTR;
+    return socket->get_remote_addr(&_socket, addr->getAddr());
+}
+socket_error_t Socket::getRemotePort(uint16_t *port) const
+{
+    if (_socket.api == NULL) return SOCKET_ERROR_NULL_PTR;
+    return socket->get_remote_port(&_socket, port);
+}
