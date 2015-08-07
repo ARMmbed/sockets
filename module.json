@@ -1,5 +1,5 @@
 {
-  "name": "mbed-net-sockets",
+  "name": "sockets",
   "version": "0.2.0",
   "description": "C++ Asynchronous Sockets Layer",
   "private": true,
@@ -16,8 +16,8 @@
     }
   ],
   "dependencies": {
-    "mbed-core": "~0.2.2",
-    "mbed-net-socket-abstract": "~0.1.1",
+    "mbed-drivers": "~0.2.2",
+    "sal": "~0.1.1",
     "minar": "~0.4.0"
   },
   "scripts": {
