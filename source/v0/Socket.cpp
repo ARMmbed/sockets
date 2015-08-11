@@ -91,19 +91,19 @@ void Socket::_eventHandler(struct socket_event *ev)
     }
 }
 
-void Socket::setOnError(ErrorHandler_t onError)
+void Socket::setOnError(const ErrorHandler_t &onError)
 {
     __disable_irq();
     _onError = onError;
     __enable_irq();
 }
-void Socket::setOnReadable(ReadableHandler_t onReadable)
+void Socket::setOnReadable(const ReadableHandler_t &onReadable)
 {
     __disable_irq();
     _onReadable = onReadable;
     __enable_irq();
 }
-void Socket::setOnSent(SentHandler_t onSent)
+void Socket::setOnSent(const SentHandler_t &onSent)
 {
     __disable_irq();
     _onSent = onSent;
@@ -120,7 +120,7 @@ void Socket::_nvEventHandler(void * arg)
     _event = NULL; // TODO: (CThunk upgrade/Alpha3)
 }
 
-socket_error_t Socket::resolve(const char* address, DNSHandler_t onDNS)
+socket_error_t Socket::resolve(const char* address, const DNSHandler_t &onDNS)
 {
     if (_socket.handler == NULL) {
         return SOCKET_ERROR_CLOSED;
@@ -202,4 +202,25 @@ bool Socket::isConnected() const {
         return false;
     }
     return _socket.api->is_connected(&_socket);
+}
+
+socket_error_t Socket::getLocalAddr(SocketAddr *addr) const
+{
+    if (_socket.api == NULL) return SOCKET_ERROR_NULL_PTR;
+    return _socket.api->get_local_addr(&_socket, addr->getAddr());
+}
+socket_error_t Socket::getLocalPort(uint16_t *port) const
+{
+    if (_socket.api == NULL) return SOCKET_ERROR_NULL_PTR;
+    return _socket.api->get_local_port(&_socket, port);
+}
+socket_error_t Socket::getRemoteAddr(SocketAddr *addr) const
+{
+    if (_socket.api == NULL) return SOCKET_ERROR_NULL_PTR;
+    return _socket.api->get_remote_addr(&_socket, addr->getAddr());
+}
+socket_error_t Socket::getRemotePort(uint16_t *port) const
+{
+    if (_socket.api == NULL) return SOCKET_ERROR_NULL_PTR;
+    return _socket.api->get_remote_port(&_socket, port);
 }

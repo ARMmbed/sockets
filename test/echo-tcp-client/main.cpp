@@ -13,14 +13,19 @@ struct s_ip_address {
     int ip_4;
 };
 
-char out_buffer[] = "Hello World\n";
-char buffer[256];
 
 using namespace mbed::Sockets::v0;
 
 EthernetInterface eth;
 
 class TCPEchoClient;
+typedef FunctionPointer2<void, bool, TCPEchoClient*> fpterminate_t;
+void terminate(bool status, TCPEchoClient* client);
+
+char out_buffer[] = "Hello World\n";
+char buffer[256];
+TCPEchoClient *client;
+int port;
 
 class TCPEchoClient {
 public:
@@ -33,7 +38,7 @@ public:
         (void) s;
         printf("MBED: Socket Error: %s (%d)\r\n", socket_strerror(err), err);
         _done = true;
-        minar::Scheduler::stop();
+        minar::Scheduler::postCallback(fpterminate_t(terminate).bind(TEST_RESULT(),this));
     }
     void start_test(char * host_addr, uint16_t port)
     {
@@ -95,8 +100,8 @@ public:
                 _unacked += sizeof(out_success) - 1;
                 err = _stream.send(out_success, sizeof(out_success) - 1);
                 _done = true;
-                minar::Scheduler::stop();
                 TEST_EQ(err, SOCKET_ERROR_NONE);
+                minar::Scheduler::postCallback(fpterminate_t(terminate).bind(TEST_RESULT(),this));
             }
         }
         if (!_done) {
@@ -104,6 +109,7 @@ public:
             err = _stream.send(out_failure, sizeof(out_failure) - 1);
             _done = true;
             TEST_EQ(err, SOCKET_ERROR_NONE);
+            minar::Scheduler::postCallback(fpterminate_t(terminate).bind(TEST_RESULT(),this));
         }
     }
     void onSent(Socket *s, uint16_t nbytes)
@@ -128,11 +134,17 @@ protected:
     volatile size_t _unacked;
 };
 
-int main() {
-    TCPEchoClient *client;
-    char buffer[256];
-    int port;
+void terminate(bool status, TCPEchoClient* client)
+{
+    delete client;
+    eth.disconnect();
+    MBED_HOSTTEST_RESULT(status);
+}
 
+
+void app_start(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(tcpecho_client_auto);
     MBED_HOSTTEST_DESCRIPTION(TCP echo client);
@@ -158,11 +170,4 @@ int main() {
         FunctionPointer2<void, char *, uint16_t> fp(client, &TCPEchoClient::start_test);
         minar::Scheduler::postCallback(fp.bind(buffer, port));
     }
-
-    minar::Scheduler::start();
-
-    delete client;
-    eth.disconnect();
-    MBED_HOSTTEST_RESULT(TEST_RESULT());
-
 }

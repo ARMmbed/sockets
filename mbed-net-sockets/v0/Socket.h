@@ -67,7 +67,7 @@ public:
      * @param[in] onDNS The handler to call when the name is resolved
      * @return SOCKET_ERROR_NONE on success, or an error code on failure
      */
-    socket_error_t resolve(const char* address, DNSHandler_t onDNS);
+    virtual socket_error_t resolve(const char* address, const DNSHandler_t &onDNS);
     /**
      * Open the socket.
      * Instantiates and initializes the underlying socket. Receive is started immediately after
@@ -100,13 +100,13 @@ public:
      * Errors are ignored if onError is not set.
      * @param[in] onError
      */
-    virtual void setOnError(ErrorHandler_t onError);
+    virtual void setOnError(const ErrorHandler_t &onError);
     /**
      * Set the received data handler
      * Received data is queued until it is read using recv or recv_from.
      * @param[in] onReadable the handler to use for receive events
      */
-    virtual void setOnReadable(ReadableHandler_t onReadable);
+    virtual void setOnReadable(const ReadableHandler_t &onReadable);
     /**
      * Receive a message
      * @param[out] buf The buffer to fill
@@ -135,7 +135,7 @@ public:
      * the network stack in UDP sockets.
      * @param[in] onSent The handler to call when a send completes
      */
-    virtual void setOnSent(SentHandler_t onSent);
+    virtual void setOnSent(const SentHandler_t &onSent);
     /**
      * Send a message
      * Sends a message over an open connection.  This call is valid for UDP sockets, provided that connect()
@@ -170,13 +170,68 @@ public:
      * @param[in] err the error code to check
      * @return false if err is SOCKET_ERROR_NONE, true otherwise
      */
-    bool error_check(socket_error_t err);
+    virtual bool error_check(socket_error_t err);
 
     /**
      * Checks the socket status to determine whether it is still connected.
      * @return true if the socket is connected, false if it is not
      */
     virtual bool isConnected() const;
+
+    /**
+     * Get the local address of the socket if bound.
+     * There are several failing conditions for this method:
+     * 1. If the socket has not been opened, returns SOCKET_ERROR_NULL_PTR
+     * 2. If the socket has not been bound, returns SOCKET_ERROR_NOT_BOUND
+     * 3. If addr is NULL, returns SOCKET_ERROR_NULL_PTR
+     *
+     * Otherwise, populates the SocketAddr object with the local address
+     *
+     * @param[out] addr a pointer to a SocketAddr object
+     * @return SOCKET_ERROR_NONE on success, or an error code on failure (see description)
+     */
+    virtual socket_error_t getLocalAddr(SocketAddr *addr) const;
+
+    /**
+     * Get the local port of the socket if bound.
+     * There are several failing conditions for this method:
+     * 1. If the socket has not been opened, returns SOCKET_ERROR_NULL_PTR
+     * 2. If the socket has not been bound, returns SOCKET_ERROR_NOT_BOUND
+     * 3. If port is NULL, returns SOCKET_ERROR_NULL_PTR
+     *
+     * Otherwise, populates the uint16_t object with the local port
+     *
+     * @param[out] port a pointer to a uint16_t
+     * @return SOCKET_ERROR_NONE on success, or an error code on failure (see description)
+     */
+    virtual socket_error_t getLocalPort(uint16_t *port) const;
+
+    /**
+     * Get the remote address of the socket if connected.
+     * There are several failing conditions for this method:
+     * 1. If the socket has not been opened, returns SOCKET_ERROR_NULL_PTR
+     * 2. If the socket has not been connected, returns SOCKET_ERROR_NO_CONNECTION
+     * 3. If addr is NULL, returns SOCKET_ERROR_NULL_PTR
+     *
+     * Otherwise, populates the SocketAddr object with the remote address
+     *
+     * @param[out] addr a pointer to a SocketAddr object
+     * @return SOCKET_ERROR_NONE on success, or an error code on failure (see description)
+     */
+    virtual socket_error_t getRemoteAddr(SocketAddr *addr) const;
+    /**
+     * Get the remote port of the socket if connected.
+     * There are several failing conditions for this method:
+     * 1. If the socket has not been opened, returns SOCKET_ERROR_NULL_PTR
+     * 2. If the socket has not been connected, returns SOCKET_ERROR_NO_CONNECTION
+     * 3. If port is NULL, returns SOCKET_ERROR_NULL_PTR
+     *
+     * Otherwise, populates the uint16_t object with the remote port
+     *
+     * @param[out] port a pointer to a uint16_t
+     * @return SOCKET_ERROR_NONE on success, or an error code on failure (see description)
+     */
+    virtual socket_error_t getRemotePort(uint16_t *port) const;
 
 #if 0 // not implemented yet
     static long ntohl(long);

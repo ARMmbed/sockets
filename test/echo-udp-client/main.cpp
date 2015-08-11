@@ -34,6 +34,15 @@ char char_rand() {
     ((A)<(B)?(A):(B))
 #endif
 
+class UDPEchoClient;
+typedef FunctionPointer2<void, bool, UDPEchoClient*> fpterminate_t;
+void terminate(bool status, UDPEchoClient* client);
+
+char buffer[BUFFER_SIZE] = {0};
+int port = 0;
+UDPEchoClient *ec;
+EthernetInterface eth;
+
 class UDPEchoClient {
 public:
     UDPEchoClient(socket_stack_t stack) :
@@ -54,7 +63,7 @@ public:
     void onError(Socket *s, socket_error_t err) {
         (void) s;
         printf("MBED: Socket Error: %s (%d)\r\n", socket_strerror(err), err);
-        minar::Scheduler::stop();
+        minar::Scheduler::postCallback(fpterminate_t(terminate).bind(TEST_RESULT(),this));
     }
     void onDNS(Socket *s, struct socket_addr sa, const char * domain)
     {
@@ -93,7 +102,7 @@ public:
             if (notify_completion_str(TEST_RESULT(), buffer)) {
                 _usock.send_to(buffer, strlen(buffer), &_resolvedAddr, _port);
                 _usock.close();
-                minar::Scheduler::stop();
+                minar::Scheduler::postCallback(fpterminate_t(terminate).bind(TEST_RESULT(),this));
             }
         }
     }
@@ -120,8 +129,17 @@ protected:
     volatile bool done;
 };
 
+void terminate(bool status, UDPEchoClient* client)
+{
+    delete client;
+    eth.disconnect();
+    MBED_HOSTTEST_RESULT(status);
+}
 
-int main() {
+
+void app_start(int argc, char *argv[]) {
+    (void) argc;
+    (void) argv;
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(udpecho_client_auto);
     MBED_HOSTTEST_DESCRIPTION(UDP echo client);
@@ -129,15 +147,12 @@ int main() {
     socket_error_t err = lwipv4_socket_init();
     TEST_EQ(err, SOCKET_ERROR_NONE);
 
-    char buffer[BUFFER_SIZE] = {0};
     s_ip_address ip_addr = {0, 0, 0, 0};
-    int port = 0;
 
     printf("MBED: UDPCllient waiting for server IP and port...\r\n");
     scanf("%d.%d.%d.%d:%d", &ip_addr.ip_1, &ip_addr.ip_2, &ip_addr.ip_3, &ip_addr.ip_4, &port);
     printf("MBED: Address received: %d.%d.%d.%d:%d\r\n", ip_addr.ip_1, ip_addr.ip_2, ip_addr.ip_3, ip_addr.ip_4, port);
 
-    EthernetInterface eth;
     int rc = eth.init(); //Use DHCP
     CHECK(rc, "eth init");
 
@@ -145,18 +160,13 @@ int main() {
     CHECK(rc, "connect");
     printf("IP: %s\n", eth.getIPAddress());
 
-    UDPEchoClient ec(SOCKET_STACK_LWIP_IPV4);
+    ec = new UDPEchoClient(SOCKET_STACK_LWIP_IPV4);
 
     printf("MBED: UDPClient IP Address is %s\r\n", eth.getIPAddress());
     sprintf(buffer, "%d.%d.%d.%d", ip_addr.ip_1, ip_addr.ip_2, ip_addr.ip_3, ip_addr.ip_4);
 
     {
-        FunctionPointer2<void, char *, uint16_t> fp(&ec, &UDPEchoClient::start_test);
+        FunctionPointer2<void, char *, uint16_t> fp(ec, &UDPEchoClient::start_test);
         minar::Scheduler::postCallback(fp.bind(buffer, port));
     }
-
-    minar::Scheduler::start();
-
-    eth.disconnect();
-    MBED_HOSTTEST_RESULT(TEST_RESULT());
 }

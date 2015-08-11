@@ -64,7 +64,7 @@ public:
      * This handler only needs to be configured once onConnect has been called
      * @param[in] h the handler to call when a connection is disconnected
      */
-    virtual void setOnDisconnect(const DisconnectHandler_t h) { _onDisconnect = h; }
+    virtual void setOnDisconnect(const DisconnectHandler_t &h) { _onDisconnect = h; }
 
 protected:
     /**
