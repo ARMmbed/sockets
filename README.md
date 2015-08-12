@@ -66,38 +66,30 @@ s.close();
 ### DNS Example
 This is a complete example of resolving an address with DNS
 ```C++
+using namespace mbed::Sockets::v0;
 class Resolver {
 private:
     UDPaSocket _sock;
-    bool _resolved;
-    SocketAddr _addr;
-    CThunk<Resolver> _dns_irq;
 public:
-    Resolver() : _sock(SOCKET_STACK_LWIP_IPV4), _resolved(false), _dns_irq(this) {
+    Resolver() : _sock(SOCKET_STACK_LWIP_IPV4) {
         _sock.open(SOCKET_AF_INET4);
-        _dns_irq.callback(&Resolver::onDNS);
     }
-    bool isResolved() const { return _resolved; }
-    void onDNS() {
-        socket_event_t *event = _sock.getEvent();
-        _addr.setAddr(&event->i.d.addr);
-        _resolved = true;
+    void onDNS(Socket *s, struct socket_addr addr, const char *domain) {
+        SocketAddr sa;
+        char buf[16];
+        sa.setAddr(&addr);
+        sa.fmtIPv4(buf,sizeof(buf));
+        printf("Resolved Address: %s\r\n", buf);
     }
-    SocketAddr & getResolvedAddr() { return _addr; }
     socket_error_t resolve(const char * address) {
-        _resolved = false;
-        return sock.resolve(address,(handler_t)_dns_irq.entry());
+        return sock.resolve(address,UDPaSocket::DNSHandler_t(this, &Resolver::onDNS));
     }
 }
 
-int main() {
+Resolver *r;
+void app_start(int argc, char *argv) {
     lwipv4_socket_init();
-    Resolver r;
-    r.resolve("mbed.org");
-    while (!r.isResolved()) { __WFI(); }
-    unsigned char * a = (char *)(void *)r.getResolvedAddr().getAddr()->storage
-    printf("Resolved Address: %d.%d.%d.%d\n\n", a[0],a[1],a[2],a[3]);
-    asm ("bkpt"::);
-    return 0;
+    r = new Resolver();
+    r->resolve("mbed.org");
 }
 ```
