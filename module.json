@@ -1,6 +1,6 @@
 {
   "name": "sockets",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "C++ Asynchronous Sockets Layer",
   "private": true,
   "keywords": [
