@@ -57,6 +57,9 @@ public:
      * @return SOCKET_ERROR_NONE on success, or an error code on failure
      */
     socket_error_t connect(const SocketAddr *address, const uint16_t port);
+private:
+    socket_error_t open(const socket_address_family_t af, const socket_proto_family_t pf);
+
 };
 } // namespace v0
 } // namespace Sockets
