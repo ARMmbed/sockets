@@ -34,3 +34,10 @@ socket_error_t UDPSocket::connect(const SocketAddr *address, const uint16_t port
     socket_error_t err = _socket.api->connect(&_socket, address->getAddr(), port);
     return err;
 }
+
+socket_error_t UDPSocket::open(const socket_address_family_t af, const socket_proto_family_t pf)
+{
+    (void)af;
+    (void)pf;
+    return SOCKET_ERROR_UNIMPLEMENTED;
+}

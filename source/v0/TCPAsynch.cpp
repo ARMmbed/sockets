@@ -42,6 +42,13 @@ socket_error_t TCPAsynch::open(const socket_address_family_t af)
     return err;
 }
 
+socket_error_t TCPAsynch::open(const socket_address_family_t af, const socket_proto_family_t pf)
+{
+    (void)af;
+    (void)pf;
+    return SOCKET_ERROR_UNIMPLEMENTED;
+}
+
 TCPAsynch::~TCPAsynch()
 {
     _TCPSockets--;

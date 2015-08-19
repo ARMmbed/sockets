@@ -40,6 +40,8 @@ protected:
     // counter overflow if the counter is the same size as the pointer type and
     // sizeof(TCPAsynch) > 0
     static uintptr_t _TCPSockets;
+private:
+    socket_error_t open(const socket_address_family_t af, const socket_proto_family_t pf);
 };
 } // namespace v0
 } // namespace Sockets
