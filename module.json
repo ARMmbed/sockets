@@ -2,7 +2,6 @@
   "name": "sockets",
   "version": "0.3.3",
   "description": "C++ Asynchronous Sockets Layer",
-  "private": true,
   "keywords": [
     "mbed",
     "network",
