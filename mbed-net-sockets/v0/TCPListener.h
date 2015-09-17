@@ -19,9 +19,11 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "mbed/FunctionPointer.h"
+#include "mbed-util/FunctionPointer.h"
 #include "TCPAsynch.h"
 #include "TCPStream.h"
+
+using namespace mbed::util;
 
 namespace mbed {
 namespace Sockets {
