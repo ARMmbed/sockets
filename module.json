@@ -1,6 +1,6 @@
 {
   "name": "sockets",
-  "version": "0.3.4",
+  "version": "0.4.0",
   "description": "C++ Asynchronous Sockets Layer",
   "keywords": [
     "mbed",
@@ -15,9 +15,9 @@
     }
   ],
   "dependencies": {
-    "mbed-drivers": "~0.6.3",
+    "mbed-drivers": "~0.8.0",
     "sal": "~0.2.1",
-    "minar": "~0.6.3"
+    "minar": "~0.7.0"
   },
   "scripts": {
     "testReporter": [
