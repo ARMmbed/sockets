@@ -19,7 +19,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "mbed/FunctionPointer.h"
+#include "mbed-util/FunctionPointer.h"
 #include "TCPAsynch.h"
 #include "TCPStream.h"
 
@@ -32,7 +32,7 @@ namespace v0 {
  */
 class TCPListener: public TCPAsynch {
 public:
-    typedef FunctionPointer2<void, TCPListener *, void *> IncomingHandler_t;
+    typedef mbed::util::FunctionPointer2<void, TCPListener *, void *> IncomingHandler_t;
     /**
      *  The TCP Listener constructor.
      * @param[in] stack the network stack to use

@@ -23,7 +23,7 @@ using namespace mbed::Sockets::v0;
 
 uintptr_t TCPAsynch::_TCPSockets = 0;
 Ticker TCPAsynch::_ticker;
-FunctionPointer0<void> TCPAsynch::_tick_handler(NULL);
+mbed::util::FunctionPointer0<void> TCPAsynch::_tick_handler(NULL);
 
 TCPAsynch::TCPAsynch(const socket_stack_t stack) :
         Socket(stack)
