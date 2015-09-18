@@ -21,6 +21,7 @@
 #include "mbed-net-lwip/lwipv4_init.h"
 #include "EthernetInterface.h"
 #include "minar/minar.h"
+#include "mbed-util/FunctionPointer.h"
 
 struct s_ip_address {
     int ip_1;
@@ -35,7 +36,7 @@ using namespace mbed::Sockets::v0;
 EthernetInterface eth;
 
 class TCPEchoClient;
-typedef FunctionPointer2<void, bool, TCPEchoClient*> fpterminate_t;
+typedef mbed::util::FunctionPointer2<void, bool, TCPEchoClient*> fpterminate_t;
 void terminate(bool status, TCPEchoClient* client);
 
 char out_buffer[] = "Hello World\n";
@@ -183,7 +184,7 @@ void app_start(int argc, char *argv[]) {
     client = new TCPEchoClient(SOCKET_STACK_LWIP_IPV4);
 
     {
-        FunctionPointer2<void, char *, uint16_t> fp(client, &TCPEchoClient::start_test);
+        mbed::util::FunctionPointer2<void, char *, uint16_t> fp(client, &TCPEchoClient::start_test);
         minar::Scheduler::postCallback(fp.bind(buffer, port));
     }
 }

@@ -34,7 +34,7 @@ public:
     virtual socket_error_t open(const socket_address_family_t af);
 protected:
     static Ticker _ticker;
-    static FunctionPointer0<void> _tick_handler;
+    static mbed::util::FunctionPointer0<void> _tick_handler;
     // uintptr_t is used to guarantee that there will always be a large enough
     // counter to avoid overflows. Memory allocation will always fail before
     // counter overflow if the counter is the same size as the pointer type and

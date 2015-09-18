@@ -27,8 +27,8 @@ namespace v0 {
 
 class TCPStream: public TCPAsynch {
 public:
-    typedef FunctionPointer1<void, TCPStream *> ConnectHandler_t;
-    typedef FunctionPointer1<void, TCPStream *> DisconnectHandler_t;
+    typedef mbed::util::FunctionPointer1<void, TCPStream *> ConnectHandler_t;
+    typedef mbed::util::FunctionPointer1<void, TCPStream *> DisconnectHandler_t;
     /**
      * TCP socket constructor.
      * Does not allocate an underlying TCP Socket instance.

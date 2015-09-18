@@ -21,7 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "mbed.h"
-#include "FunctionPointer.h"
+#include "mbed-util/FunctionPointer.h"
 #include "CThunk.h"
 #include "mbed-net-socket-abstract/socket_types.h"
 #include "SocketAddr.h"
@@ -37,10 +37,10 @@ namespace v0 {
  */
 class Socket {
 public:
-    typedef FunctionPointer3<void, Socket *, struct socket_addr, const char *> DNSHandler_t;
-    typedef FunctionPointer2<void, Socket *, socket_error_t> ErrorHandler_t;
-    typedef FunctionPointer1<void, Socket *> ReadableHandler_t;
-    typedef FunctionPointer2<void, Socket *, uint16_t> SentHandler_t;
+    typedef mbed::util::FunctionPointer3<void, Socket *, struct socket_addr, const char *> DNSHandler_t;
+    typedef mbed::util::FunctionPointer2<void, Socket *, socket_error_t> ErrorHandler_t;
+    typedef mbed::util::FunctionPointer1<void, Socket *> ReadableHandler_t;
+    typedef mbed::util::FunctionPointer2<void, Socket *, uint16_t> SentHandler_t;
 protected:
     /**
      * Socket constructor
