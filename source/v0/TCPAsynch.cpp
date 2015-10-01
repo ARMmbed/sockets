@@ -53,5 +53,6 @@ TCPAsynch::~TCPAsynch()
     _TCPSockets--;
     if (!_TCPSockets) {
         minar::Scheduler::cancelCallback(_tick_handle);
+        _tick_handle = 0;
     }
 }
