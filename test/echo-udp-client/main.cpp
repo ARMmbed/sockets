@@ -23,7 +23,7 @@
 #include "EthernetInterface.h"
 #include "mbed-net-lwip/lwipv4_init.h"
 #include "minar/minar.h"
-#include "mbed-util/FunctionPointer.h"
+#include "core-util/FunctionPointer.h"
 
 #define CHECK(RC, STEP)       if (RC < 0) error(STEP": %d\r\n", RC)
 

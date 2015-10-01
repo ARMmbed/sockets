@@ -19,7 +19,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "mbed-util/FunctionPointer.h"
+#include "core-util/FunctionPointer.h"
 #include "TCPAsynch.h"
 #include "TCPStream.h"
 
