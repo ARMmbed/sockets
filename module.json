@@ -15,9 +15,9 @@
     }
   ],
   "dependencies": {
-    "sal": "~0.2.1",
-    "core-util": "~0.1.2",
-    "minar": "~0.7.0"
+    "sal": "~0.2.3",
+    "core-util" : "~0.2.1",
+    "minar": "~0.8.1"
   },
   "scripts": {
     "testReporter": [

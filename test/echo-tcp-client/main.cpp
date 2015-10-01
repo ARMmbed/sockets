@@ -21,7 +21,7 @@
 #include "mbed-net-lwip/lwipv4_init.h"
 #include "EthernetInterface.h"
 #include "minar/minar.h"
-#include "mbed-util/FunctionPointer.h"
+#include "core-util/FunctionPointer.h"
 
 struct s_ip_address {
     int ip_1;
