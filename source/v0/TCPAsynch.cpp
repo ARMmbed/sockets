@@ -15,24 +15,23 @@
  * limitations under the License.
  */
 
-#include "Ticker.h"
+#include "minar/minar.h"
 #include "mbed-net-sockets/v0/TCPAsynch.h"
 #include "mbed-net-socket-abstract/socket_api.h"
 
 using namespace mbed::Sockets::v0;
 
 uintptr_t TCPAsynch::_TCPSockets = 0;
-Ticker TCPAsynch::_ticker;
-mbed::util::FunctionPointer0<void> TCPAsynch::_tick_handler(NULL);
+minar::callback_handle_t TCPAsynch::_tick_handle(NULL);
 
 TCPAsynch::TCPAsynch(const socket_stack_t stack) :
         Socket(stack)
 {
     _socket.family = SOCKET_STREAM;
     if (_TCPSockets == 0) {
-        timestamp_t timeout = _socket.api->periodic_interval(&_socket) * 1000;
+        uint32_t timeout = _socket.api->periodic_interval(&_socket);
         void (*f)() = _socket.api->periodic_task(&_socket);
-        _ticker.attach_us(f, timeout);
+        _tick_handle = minar::Scheduler::postCallback(f).period(minar::milliseconds(timeout)).tolerance(timeout/2).getHandle();
     }
     _TCPSockets++;
 }
@@ -53,6 +52,7 @@ TCPAsynch::~TCPAsynch()
 {
     _TCPSockets--;
     if (!_TCPSockets) {
-        _ticker.detach();
+        minar::Scheduler::cancelCallback(_tick_handle);
+        _tick_handle = 0;
     }
 }
