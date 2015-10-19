@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef __MBED_NET_SOCKETS_SOCKET_H__
-#define __MBED_NET_SOCKETS_SOCKET_H__
+#ifndef __SOCKETS_TCPSTREAM_H__
+#define __SOCKETS_TCPSTREAM_H__
 
 /* Include all versions of the API */
-#include "v0/Socket.h"
+#include "v0/TCPStream.h"
 
 /* Set the current namespace */
 namespace mbed {
@@ -29,4 +29,4 @@ namespace mbed {
     }
 }
 
-#endif // __MBED_NET_SOCKETS_SOCKET_H__
+#endif // __SOCKETS_TCPSTREAM_H__

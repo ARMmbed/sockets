@@ -14,8 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef __MBED_NET_SOCKETS_V0_TCPLISTENER_H__
-#define __MBED_NET_SOCKETS_V0_TCPLISTENER_H__
+#ifndef __SOCKETS_V0_TCPLISTENER_H__
+#define __SOCKETS_V0_TCPLISTENER_H__
 
 #include <stddef.h>
 #include <stdint.h>
@@ -83,4 +83,4 @@ protected:
 } // namespace v0
 } // namespace Sockets
 } // namespace mbed
-#endif // __MBED_NET_SOCKETS_V0_TCPLISTENER_H__
+#endif // __SOCKETS_V0_TCPLISTENER_H__
