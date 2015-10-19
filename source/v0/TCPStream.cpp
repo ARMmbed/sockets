@@ -14,8 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "mbed-net-sockets/v0/TCPStream.h"
-#include "mbed-net-sockets/v0/SocketAddr.h"
+#include "sockets/v0/TCPStream.h"
+#include "sockets/v0/SocketAddr.h"
 #include "mbed-net-socket-abstract/socket_api.h"
 #include "minar/minar.h"
 

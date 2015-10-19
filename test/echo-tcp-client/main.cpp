@@ -16,7 +16,7 @@
  */
 #include "mbed.h"
 #include "test_env.h"
-#include "mbed-net-sockets/TCPStream.h"
+#include "sockets/TCPStream.h"
 #include "mbed-net-socket-abstract/test/ctest_env.h"
 #include "mbed-net-lwip/lwipv4_init.h"
 #include "EthernetInterface.h"
