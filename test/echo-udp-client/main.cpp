@@ -18,7 +18,7 @@
 #include "test_env.h"
 #include "mbed-net-socket-abstract/test/ctest_env.h"
 #include <algorithm>
-#include "mbed-net-sockets/UDPSocket.h"
+#include "sockets/UDPSocket.h"
 #include "mbed-net-socket-abstract/socket_api.h"
 #include "EthernetInterface.h"
 #include "mbed-net-lwip/lwipv4_init.h"

@@ -16,7 +16,7 @@
  */
 
 #include "minar/minar.h"
-#include "mbed-net-sockets/v0/TCPAsynch.h"
+#include "sockets/v0/TCPAsynch.h"
 #include "mbed-net-socket-abstract/socket_api.h"
 
 using namespace mbed::Sockets::v0;

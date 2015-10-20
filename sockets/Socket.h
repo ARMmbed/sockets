@@ -14,30 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "sockets/v0/UDPSocket.h"
-#include "mbed-net-socket-abstract/socket_api.h"
+#ifndef __SOCKETS_SOCKET_H__
+#define __SOCKETS_SOCKET_H__
 
-using namespace mbed::Sockets::v0;
-UDPSocket::UDPSocket(socket_stack_t stack):
-/* Store the default handler */
-    Socket(stack)
-{
-    _socket.family = SOCKET_DGRAM;
+/* Include all versions of the API */
+#include "v0/Socket.h"
+
+/* Set the current namespace */
+namespace mbed {
+    namespace Sockets {
+        namespace current {
+            using namespace mbed::Sockets::v0;
+        }
+    }
 }
 
-UDPSocket::~UDPSocket()
-{
-}
-
-socket_error_t UDPSocket::connect(const SocketAddr *address, const uint16_t port)
-{
-    socket_error_t err = _socket.api->connect(&_socket, address->getAddr(), port);
-    return err;
-}
-
-socket_error_t UDPSocket::open(const socket_address_family_t af, const socket_proto_family_t pf)
-{
-    (void)af;
-    (void)pf;
-    return SOCKET_ERROR_UNIMPLEMENTED;
-}
+#endif // __SOCKETS_SOCKET_H__

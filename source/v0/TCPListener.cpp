@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#include "mbed-net-sockets/v0/TCPListener.h"
-#include "mbed-net-sockets/v0/TCPStream.h"
+#include "sockets/v0/TCPListener.h"
+#include "sockets/v0/TCPStream.h"
 #include "mbed-net-socket-abstract/socket_api.h"
 #include "minar/minar.h"
 

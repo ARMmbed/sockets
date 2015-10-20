@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "mbed-net-sockets/v0/Socket.h"
+#include "sockets/v0/Socket.h"
 #include "minar/minar.h"
 #include "mbed-net-socket-abstract/socket_api.h"
 #include "cmsis.h"
