@@ -16,7 +16,7 @@
  */
 #include "sockets/v0/Socket.h"
 #include "minar/minar.h"
-#include "mbed-net-socket-abstract/socket_api.h"
+#include "sal/socket_api.h"
 #include "cmsis.h"
 
 using namespace mbed::Sockets::v0;

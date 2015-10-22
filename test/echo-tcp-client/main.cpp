@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "mbed.h"
-#include "test_env.h"
+#include "mbed-drivers/mbed.h"
+#include "mbed-drivers/test_env.h"
 #include "sockets/TCPStream.h"
-#include "mbed-net-socket-abstract/test/ctest_env.h"
-#include "mbed-net-lwip/lwipv4_init.h"
-#include "EthernetInterface.h"
+#include "sal/test/ctest_env.h"
+#include "sal-stack-lwip/lwipv4_init.h"
+#include "sal-iface-eth/EthernetInterface.h"
 #include "minar/minar.h"
 #include "core-util/FunctionPointer.h"
 

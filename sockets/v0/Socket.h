@@ -20,10 +20,10 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "mbed.h"
+#include "mbed-drivers/mbed.h"
 #include "core-util/FunctionPointer.h"
-#include "CThunk.h"
-#include "mbed-net-socket-abstract/socket_types.h"
+#include "mbed-drivers/CThunk.h"
+#include "sal/socket_types.h"
 #include "SocketAddr.h"
 
 namespace mbed {

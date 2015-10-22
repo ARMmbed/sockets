@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include "sockets/v0/UDPSocket.h"
-#include "mbed-net-socket-abstract/socket_api.h"
+#include "sal/socket_api.h"
 
 using namespace mbed::Sockets::v0;
 UDPSocket::UDPSocket(socket_stack_t stack):

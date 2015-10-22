@@ -18,7 +18,7 @@
 #define __MBED_NET_SOCKETS_V0_TCP_ASYNCH__
 
 #include "Socket.h"
-#include "mbed-net-socket-abstract/socket_api.h"
+#include "sal/socket_api.h"
 
 #include "minar/minar.h"
 

@@ -18,7 +18,6 @@
 #define __SOCKETS_V0_TCPSTREAM_H__
 #include <stddef.h>
 #include <stdint.h>
-#include "Ticker.h"
 #include "TCPAsynch.h"
 
 namespace mbed {
