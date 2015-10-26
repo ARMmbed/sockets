@@ -16,7 +16,7 @@
  */
 #include "sockets/v0/TCPStream.h"
 #include "sockets/v0/SocketAddr.h"
-#include "mbed-net-socket-abstract/socket_api.h"
+#include "sal/socket_api.h"
 #include "minar/minar.h"
 
 using namespace mbed::Sockets::v0;

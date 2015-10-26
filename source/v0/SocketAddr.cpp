@@ -18,7 +18,7 @@
 #include <stdio.h>
 
 #include "sockets/v0/SocketAddr.h"
-#include "mbed-net-socket-abstract/socket_api.h"
+#include "sal/socket_api.h"
 
 using namespace mbed::Sockets::v0;
 
