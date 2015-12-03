@@ -46,7 +46,7 @@ bool SocketAddr::is_v4() {
 // Returns 0 on success
 int SocketAddr::fmtIPv4(char *buf, size_t size)
 {
-    if (size < IPv4_STRLEN) {
+    if (size < IPv4_STRLEN || buf == NULL) {
         return -1;
     }
     uint8_t *v4ip = reinterpret_cast<uint8_t *>(&_addr.ipv6be[3]);
@@ -55,6 +55,9 @@ int SocketAddr::fmtIPv4(char *buf, size_t size)
 }
 int SocketAddr::fmtIPv6(char *buf, size_t size)
 {
+    if (buf == NULL) {
+        return -1;
+    }
     if (socket_addr_is_ipv4(&_addr)) {
         if (size < IPv64_STRLEN) {
             return -1;
