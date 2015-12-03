@@ -49,6 +49,9 @@ int SocketAddr::fmtIPv4(char *buf, size_t size)
     if (size < IPv4_STRLEN || buf == NULL) {
         return -1;
     }
+    if (!socket_addr_is_ipv4(&_addr)) {
+        return -1;
+    }
     uint8_t *v4ip = reinterpret_cast<uint8_t *>(&_addr.ipv6be[3]);
     int rc = snprintf(buf, size, "%d.%d.%d.%d", v4ip[0], v4ip[1], v4ip[2], v4ip[3] );
     return (rc < 0);
