@@ -35,18 +35,17 @@ bool SocketAddr::is_v4() {
 
 #define OCTET_SIZE 3
 #define SEPARATOR_SIZE 1
-#define TERMINATOR_SIZE 1
-#define IPv4_STRLEN (4 * (OCTET_SIZE) + 3 * SEPARATOR_SIZE + TERMINATOR_SIZE)
+#define IPv4_STRLEN (4 * (OCTET_SIZE) + 3 * SEPARATOR_SIZE)
 #define IPv6_QUAD_SIZE 4
 #define IPv64_PREFIX ("::ffff:")
-#define IPv64_PREFIX_STRLEN (sizeof(IPv64_PREFIX))
+#define IPv64_PREFIX_STRLEN (sizeof(IPv64_PREFIX) - 1)
 #define IPv64_STRLEN (IPv64_PREFIX_STRLEN + IPv4_STRLEN)
 
 
 // Returns 0 on success
 int SocketAddr::fmtIPv4(char *buf, size_t size)
 {
-    if (size < IPv4_STRLEN || buf == NULL) {
+    if (size <= IPv4_STRLEN || buf == NULL) {
         return -1;
     }
     if (!socket_addr_is_ipv4(&_addr)) {
@@ -62,7 +61,7 @@ int SocketAddr::fmtIPv6(char *buf, size_t size)
         return -1;
     }
     if (socket_addr_is_ipv4(&_addr)) {
-        if (size < IPv64_STRLEN) {
+        if (size <= IPv64_STRLEN) {
             return -1;
         }
         strncpy(buf, IPv64_PREFIX, IPv64_PREFIX_STRLEN);
