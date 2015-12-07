@@ -34,35 +34,40 @@ namespace v0 {
 class SocketAddr {
 public:
     /**
-     * Get a poitner to the internal struct socket_addr storage
+     * Get a pointer to the internal struct socket_addr storage
+     *
      * @return The address of the internal struct
      */
     struct socket_addr * getAddr() {return &_addr;}
     /**
-     * Get a const poitner to the internal struct socket_addr storage
+     * Get a const pointer to the internal struct socket_addr storage
+     *
      * @return The address of the internal struct
      */
     const struct socket_addr * getAddr() const {return &_addr;}
     /**
      * Copy the contents of an existing struct socket_addr into the internal storage
+     *
      * @param[in] addr the original address to copy
      */
     void setAddr(const struct socket_addr *addr);
     /**
      * Copy the contents of an existing SocketAddr into the internal storage
+     *
      * @param[in] addr the original address to copy
      */
     void setAddr(const SocketAddr *addr);
     /**
      * Return the size of the internal storage.
+     *
      * @return the space consumed by a SocketAddr
      */
     size_t getAddrSize() const {return sizeof(_addr.ipv6be);}
     /**
      * Check if the internal address is an IPv4 address
-     * This checks if the address falls in the ::ffff:0000:0000 range.
-     * @return the IPv4-ness of the internal address
-     * @retval true if the IP address is IPv4
+     * This checks if the address falls in the `::ffff:0000:0000` range.
+     *
+     * @retval true  the IP address is IPv4
      * @retval false otherwise
      */
     bool is_v4();
@@ -70,16 +75,12 @@ public:
     /**
      * Format the IP address in IPv4 dotted-quad Format
      *
-     * Formatting can fail for several reasons:
-     * * The buffer was NULL
-     * * size of the buffer was too small
-     * * The IP address was IPv6, when IPv4 was expected
-     *
      * @param[out] buf the buffer to fill
-     * @param[in] size the size of the buffer to fill
-     * @return whether or not formatting was successful
-     * @retval 0 formatting was successful
-     * @retval 1 formatting was unsuccessful
+     * @param[in] size the size of the buffer to fill. Must be at least 16 chars long (incl. terminator).
+     *
+     * @retval -1 invalid pointer to buffer
+     * @retval -2 buffer size too small
+     * @retval -3 address is an IPv6 address, cannot format as IPv4.
      */
     int fmtIPv4(char *buf, size_t size);
     /**
@@ -88,17 +89,17 @@ public:
      * If the IP address is IPv6, colon-separated format is used.
      * If the IP address is IPv4, then the address is formatted as a 96-bit prefix in colon-separated format, followed
      * by a 32-bit dotted-quad.
-     * Formatting can fail for two reasons:
-     * * The buffer was NULL
-     * * size of the buffer was too small
      *
      * NOTE: IPv6 is not supported, pending inet_ntop integration.
      *
      * @param[out] buf the buffer to fill
-     * @param[in] size the size of the buffer to fill
-     * @return whether or not formatting was successful
+     * @param[in] size  the size of the buffer to fill.
+     *                  Must be at least 23 chars long (incl. terminator) for an IPv4 address in IPv6 format.
+     *                  Must be at least 46 chars long for an IPv6 address.
+     *
      * @retval 0 formatting was successful
-     * @retval 1 formatting was unsuccessful
+     * @retval -1 invalid pointer to buffer
+     * @retval -2 buffer size too small
      */
     int fmtIPv6(char *buf, size_t size);
 protected:

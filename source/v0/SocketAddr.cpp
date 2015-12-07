@@ -45,29 +45,25 @@ bool SocketAddr::is_v4() {
 // Returns 0 on success
 int SocketAddr::fmtIPv4(char *buf, size_t size)
 {
-    if (size <= IPv4_STRLEN || buf == NULL) {
-        return -1;
-    }
-    if (!socket_addr_is_ipv4(&_addr)) {
-        return -1;
-    }
+    if (buf == NULL) return -1;
+    if (size <= IPv4_STRLEN) return -2;
+    if (!socket_addr_is_ipv4(&_addr)) return -3;
+
     uint8_t *v4ip = reinterpret_cast<uint8_t *>(&_addr.ipv6be[3]);
     int rc = snprintf(buf, size, "%d.%d.%d.%d", v4ip[0], v4ip[1], v4ip[2], v4ip[3] );
     return (rc < 0);
 }
 int SocketAddr::fmtIPv6(char *buf, size_t size)
 {
-    if (buf == NULL) {
-        return -1;
-    }
+    if (buf == NULL) return -1;
     if (socket_addr_is_ipv4(&_addr)) {
-        if (size <= IPv64_STRLEN) {
-            return -1;
-        }
+        if (size <= IPv64_STRLEN) return -2;
+        // copy `::ffff:` prefix into buffer WITHOUT terminator
         strncpy(buf, IPv64_PREFIX, IPv64_PREFIX_STRLEN);
+        // format IPv4 address after prefix
         return fmtIPv4(buf + IPv64_PREFIX_STRLEN, size - IPv64_PREFIX_STRLEN);
     } else {
         //TODO: requires inet_ntop
-        return -1;
+        return -3;
     }
 }
