@@ -83,6 +83,13 @@ public:
      * @retval -3 address is an IPv6 address, cannot format as IPv4.
      */
     int fmtIPv4(char *buf, size_t size);
+
+    /// Convenience function for using statically allocated buffers.
+    template< size_t N >
+    int fmtIPv4(char (&buf)[N]) {
+        return fmtIPv4(buf, N);
+    }
+
     /**
      * Format the IP address in IPv6 colon separated format
      *
@@ -102,6 +109,12 @@ public:
      * @retval -2 buffer size too small
      */
     int fmtIPv6(char *buf, size_t size);
+
+    /// Convenience function for using statically allocated buffers.
+    template< size_t N >
+    int fmtIPv6(char (&buf)[N]) {
+        return fmtIPv6(buf, N);
+    }
 protected:
     struct socket_addr _addr; /**< 128-bits of internal storage for the IP address */
 };
