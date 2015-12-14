@@ -68,3 +68,14 @@ void TCPStream::_eventHandler(struct socket_event *ev)
             break;
     }
 }
+
+void TCPStream::setNagle(bool enable)
+{
+    void * enable_ptr;
+    if(enable) {
+        enable_ptr = (void*)1;
+    } else {
+        enable_ptr = NULL;
+    }
+    _socket.api->set_option(&_socket, SOCKET_PROTO_LEVEL_TCP, SOCKET_OPT_NAGGLE, enable_ptr, 0);
+}

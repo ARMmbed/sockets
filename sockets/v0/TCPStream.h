@@ -65,6 +65,16 @@ public:
      */
     virtual void setOnDisconnect(const DisconnectHandler_t &h) { _onDisconnect = h; }
 
+    /**
+     * Enable Nagle's algorithm
+     * Nagle's algorithm groups small packets together for more efficient transmission
+     * on TCP sockets. Sometimes, this is undesirable, since it can introduce latency between
+     * putting data in the send queue and it actually sending.
+     *
+     * @param[in] enable when true, enable the nagle algorithm, when false, disable it.
+     */
+    virtual void setNagle(bool enable);
+
 protected:
     /**
      * Internal event handler
