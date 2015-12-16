@@ -40,6 +40,13 @@ int SocketAddr::setAddr(socket_address_family_t af, const char *addr) {
         default:
             break;
     }
+    // Convert from inet_pton return codes to -1/0
+    if (rc == 1) {
+        // inet_pton returns 1 on success
+        rc = 0;
+    } else {
+        rc = -1;
+    }
     return rc;
 }
 
