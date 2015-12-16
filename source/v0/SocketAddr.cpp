@@ -28,41 +28,42 @@ void SocketAddr::setAddr(const struct socket_addr *addr) {
 void SocketAddr::setAddr(const SocketAddr *addr) {
     setAddr(addr->getAddr());
 }
+int SocketAddr::setAddr(socket_address_family_t af, const char *addr) {
+    int rc = -1;
+    switch(af) {
+        case SOCKET_AF_INET4:
+            rc = inet_pton(af, addr, &(_addr.ipv6be[3]));
+            break;
+        case SOCKET_AF_INET6:
+            rc = inet_pton(af, addr, _addr.ipv6be);
+            break;
+        default:
+            break;
+    }
+    return rc;
+}
 
-bool SocketAddr::is_v4() {
+bool SocketAddr::is_v4() const {
     return socket_addr_is_ipv4(&_addr);
 }
 
-#define OCTET_SIZE 3
-#define SEPARATOR_SIZE 1
-#define TERMINATOR_SIZE 1
-#define IPv4_STRLEN (4 * (OCTET_SIZE) + 3 * SEPARATOR_SIZE + TERMINATOR_SIZE)
-#define IPv6_QUAD_SIZE 4
-#define IPv64_PREFIX ("::ffff:")
-#define IPv64_PREFIX_STRLEN (sizeof(IPv64_PREFIX))
-#define IPv64_STRLEN (IPv64_PREFIX_STRLEN + IPv4_STRLEN)
-
-
 // Returns 0 on success
-int SocketAddr::fmtIPv4(char *buf, size_t size)
+int SocketAddr::fmtIPv4(char *buf, size_t size) const
 {
-    if (size < IPv4_STRLEN) {
+    if (!is_v4()){
         return -1;
     }
-    uint8_t *v4ip = reinterpret_cast<uint8_t *>(&_addr.ipv6be[3]);
-    int rc = snprintf(buf, size, "%d.%d.%d.%d", v4ip[0], v4ip[1], v4ip[2], v4ip[3] );
-    return (rc < 0);
+    if (buf == NULL) {
+        return -1;
+    }
+    char * ptr = inet_ntop(SOCKET_AF_INET4, &(_addr.ipv6be[3]), buf, size);
+    return (ptr == NULL)?-1:0;
 }
-int SocketAddr::fmtIPv6(char *buf, size_t size)
+int SocketAddr::fmtIPv6(char *buf, size_t size) const
 {
-    if (socket_addr_is_ipv4(&_addr)) {
-        if (size < IPv64_STRLEN) {
-            return -1;
-        }
-        strncpy(buf, IPv64_PREFIX, IPv64_PREFIX_STRLEN);
-        return fmtIPv4(buf + IPv64_PREFIX_STRLEN, size - IPv64_PREFIX_STRLEN);
-    } else {
-        //TODO: requires inet_ntop
+    if (buf == NULL) {
         return -1;
     }
+    char * ptr = inet_ntop(SOCKET_AF_INET6, &_addr, buf, size);
+    return (ptr == NULL)?-1:0;
 }

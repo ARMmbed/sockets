@@ -29,11 +29,12 @@ public:
     const struct socket_addr * getAddr() const {return &_addr;}
     void setAddr(const struct socket_addr *addr);
     void setAddr(const SocketAddr *addr);
+    int setAddr(socket_address_family_t af, const char *addr);
     size_t getAddrSize() const {return sizeof(_addr.ipv6be);}
-    bool is_v4();
+    bool is_v4() const;
 
-    int fmtIPv4(char *buf, size_t size);
-    int fmtIPv6(char *buf, size_t size);
+    int fmtIPv4(char *buf, size_t size) const;
+    int fmtIPv6(char *buf, size_t size) const;
 protected:
     struct socket_addr _addr;
 };
