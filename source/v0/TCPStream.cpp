@@ -77,5 +77,5 @@ void TCPStream::setNagle(bool enable)
     } else {
         enable_ptr = NULL;
     }
-    _socket.api->set_option(&_socket, SOCKET_PROTO_LEVEL_TCP, SOCKET_OPT_NAGGLE, enable_ptr, 0);
+    _socket.api->set_option(&_socket, SOCKET_PROTO_LEVEL_TCP, SOCKET_OPT_NAGLE, enable_ptr, 0);
 }
