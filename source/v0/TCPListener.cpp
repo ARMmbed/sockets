@@ -57,7 +57,13 @@ TCPStream * TCPListener::accept(void *new_impl)
     new_socket.impl = new_impl;
     new_socket.stack = _socket.stack;
     new_socket.family = _socket.family;
-    return new TCPStream(&new_socket);
+    socket_error_t err;
+    TCPStream * stream = new TCPStream(&_socket, &new_socket, err);
+    if(err != SOCKET_ERROR_NONE) {
+        delete stream;
+        return NULL;
+    }
+    return stream;
 }
 void TCPListener::reject(void * impl)
 {

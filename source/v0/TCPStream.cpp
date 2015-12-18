@@ -40,6 +40,18 @@ TCPStream::TCPStream(const struct socket *sock) :
     socket_error_t err = _socket.api->accept(&_socket, reinterpret_cast<socket_api_handler_t>(_irq.entry()));
     error_check(err);
 }
+TCPStream::TCPStream(struct socket* listener, const struct socket *sock, socket_error_t &err) :
+        /* Store the default handler */
+        TCPAsynch(sock->stack),
+        /* Zero the handlers */
+        _onConnect(NULL), _onDisconnect(NULL)
+{
+    _socket.family     = sock->family;
+    _socket.impl       = sock->impl;
+
+    err = socket_accept(listener, &_socket,
+        reinterpret_cast<socket_api_handler_t>(_irq.entry()));
+}
 
 TCPStream::~TCPStream()
 {
