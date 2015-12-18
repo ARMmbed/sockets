@@ -64,8 +64,12 @@ public:
      * This function uses inet_pton and has the restrictions expected with that API.
      *
      * @param[in] addr the original address to copy
+     * @retval SOCKET_ERROR_NONE Format completed
+     * @retval SOCKET_ERROR_BAD_ADDRESS Unrecognized address format
+     * @retval SOCKET_ERROR_BAD_ARGUMENT An unexpected argument was provided
+     * @retval SOCKET_ERROR_UNKNOWN An unexpected error occurred
      */
-    int setAddr(socket_address_family_t af, const char *addr);
+    socket_error_t setAddr(socket_address_family_t af, const char *addr);
     /**
      * Return the size of the internal storage.
      *

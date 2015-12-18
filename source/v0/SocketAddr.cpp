@@ -28,26 +28,19 @@ void SocketAddr::setAddr(const struct socket_addr *addr) {
 void SocketAddr::setAddr(const SocketAddr *addr) {
     setAddr(addr->getAddr());
 }
-int SocketAddr::setAddr(socket_address_family_t af, const char *addr) {
-    int rc = -1;
-    switch(af) {
-        case SOCKET_AF_INET4:
-            rc = inet_pton(af, addr, &(_addr.ipv6be[3]));
-            break;
-        case SOCKET_AF_INET6:
-            rc = inet_pton(af, addr, _addr.ipv6be);
-            break;
-        default:
-            break;
-    }
+socket_error_t SocketAddr::setAddr(socket_address_family_t af, const char *addr) {
+    int rc = inet_pton(af, addr, &_addr);
     // Convert from inet_pton return codes to -1/0
-    if (rc == 1) {
-        // inet_pton returns 1 on success
-        rc = 0;
-    } else {
-        rc = -1;
+    switch (rc) {
+        case 1:
+            return SOCKET_ERROR_NONE;
+        case 0:
+            return SOCKET_ERROR_BAD_ADDRESS;
+        case -1:
+            return SOCKET_ERROR_BAD_ARGUMENT;
+        default:
+            return SOCKET_ERROR_UNKNOWN;
     }
-    return rc;
 }
 
 bool SocketAddr::is_v4() const {
