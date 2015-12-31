@@ -31,6 +31,9 @@ UDPSocket::~UDPSocket()
 
 socket_error_t UDPSocket::connect(const SocketAddr *address, const uint16_t port)
 {
+    if (_socket.api == NULL) {
+        return SOCKET_ERROR_BAD_STACK;
+    }
     socket_error_t err = _socket.api->connect(&_socket, address->getAddr(), port);
     return err;
 }
