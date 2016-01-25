@@ -22,7 +22,7 @@
 using namespace mbed::Sockets::v0;
 
 uintptr_t TCPAsynch::_TCPSockets = 0;
-minar::callback_handle_t TCPAsynch::_tick_handle(NULL);
+minar::callback_handle_t TCPAsynch::_tick_handle(nullptr);
 
 TCPAsynch::TCPAsynch(const socket_stack_t stack) :
         Socket(stack)
@@ -54,8 +54,8 @@ socket_error_t TCPAsynch::open(const socket_address_family_t af, const socket_pr
 TCPAsynch::~TCPAsynch()
 {
     _TCPSockets--;
-    if (_TCPSockets == 0 && _tick_handle != NULL) {
+    if (_TCPSockets == 0 && _tick_handle != nullptr) {
         minar::Scheduler::cancelCallback(_tick_handle);
-        _tick_handle = NULL;
+        _tick_handle = nullptr;
     }
 }
