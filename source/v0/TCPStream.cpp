@@ -46,6 +46,9 @@ TCPStream::~TCPStream()
 }
 socket_error_t TCPStream::connect(const SocketAddr &address, const uint16_t port, const ConnectHandler_t &onConnect)
 {
+    if (_socket.api == NULL){
+        return SOCKET_ERROR_BAD_STACK;
+    }
     _onConnect = onConnect;
     socket_error_t err = _socket.api->connect(&_socket, address.getAddr(), port);
     return err;

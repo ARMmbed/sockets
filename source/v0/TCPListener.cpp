@@ -34,12 +34,20 @@ TCPListener::~TCPListener()
 
 socket_error_t TCPListener::start_listening(IncomingHandler_t listenHandler, uint32_t backlog)
 {
+    if (_socket.api == NULL) {
+        return SOCKET_ERROR_BAD_STACK;
+    }
+
     _onIncoming = listenHandler;
+
     socket_error_t err = _socket.api->start_listen(&_socket, backlog);
     return err;
 }
 socket_error_t TCPListener::stop_listening()
 {
+    if (_socket.api == NULL) {
+        return SOCKET_ERROR_BAD_STACK;
+    }
     socket_error_t err = _socket.api->stop_listen(&_socket);
     return err;
 }

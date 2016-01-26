@@ -22,16 +22,19 @@
 using namespace mbed::Sockets::v0;
 
 uintptr_t TCPAsynch::_TCPSockets = 0;
-minar::callback_handle_t TCPAsynch::_tick_handle(NULL);
+minar::callback_handle_t TCPAsynch::_tick_handle(nullptr);
 
 TCPAsynch::TCPAsynch(const socket_stack_t stack) :
         Socket(stack)
 {
     _socket.family = SOCKET_STREAM;
     if (_TCPSockets == 0) {
-        uint32_t timeout = _socket.api->periodic_interval(&_socket);
-        void (*f)() = _socket.api->periodic_task(&_socket);
-        _tick_handle = minar::Scheduler::postCallback(f).period(minar::milliseconds(timeout)).tolerance(timeout/2).getHandle();
+        if (_socket.api != NULL){
+
+            uint32_t timeout = _socket.api->periodic_interval(&_socket);
+            void (*f)() = _socket.api->periodic_task(&_socket);
+            _tick_handle = minar::Scheduler::postCallback(f).period(minar::milliseconds(timeout)).tolerance(timeout/2).getHandle();
+        }
     }
     _TCPSockets++;
 }
@@ -51,8 +54,8 @@ socket_error_t TCPAsynch::open(const socket_address_family_t af, const socket_pr
 TCPAsynch::~TCPAsynch()
 {
     _TCPSockets--;
-    if (!_TCPSockets) {
+    if (_TCPSockets == 0 && _tick_handle != nullptr) {
         minar::Scheduler::cancelCallback(_tick_handle);
-        _tick_handle = 0;
+        _tick_handle = nullptr;
     }
 }
