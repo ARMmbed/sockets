@@ -42,7 +42,21 @@ public:
      * the stack, API, protocol family, and impl pointer from sock.
      * @param[in] sock The TCP socket instance to use for this TCP socket.
      */
-    TCPStream(const struct socket * sock);
+    __deprecated TCPStream(const struct socket * sock);
+
+    /**
+     * TCP socket constructor.
+     * Does not allocate an underlying TCP Socket instance. This version is for use with
+     * TCPListener::accept(). The struct socket instance passed into this constructor should
+     * be a fully initialized socket, with an initialized impl field.  TCPStream will copy
+     * the stack, API, protocol family, and impl pointer from sock.
+     *
+     * @param[in,out] listener The TCP socket instance that accepted the new socket.
+     * @param[in] sock The TCP socket instance to use for this TCP socket.
+     * @param[out] err The result of the call to accept.
+     */
+    TCPStream(struct socket* listener, const struct socket *sock, socket_error_t &err);
+
     /**
      * TCP socket destructor
      */
