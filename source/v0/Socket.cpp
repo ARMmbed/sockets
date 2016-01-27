@@ -147,7 +147,7 @@ socket_error_t Socket::bind(const SocketAddr * addr, const uint16_t port)
 {
     socket_error_t err;
     if (addr == NULL) {
-        return SOCKET_ERROR_BAD_ADDRESS;
+        return SOCKET_ERROR_NULL_PTR;
     }
 
     if (_socket.impl == NULL)
@@ -179,11 +179,8 @@ socket_error_t Socket::recv(void * buf, size_t *len)
 socket_error_t Socket::recv_from(void * buf, size_t *len, SocketAddr *remote_addr, uint16_t *remote_port)
 {
     struct socket_addr addr;
-    if (_socket.impl == NULL) {
+    if (_socket.impl == NULL || remote_addr == NULL) {
         return SOCKET_ERROR_NULL_PTR;
-    }
-    if (remote_addr == NULL) {
-        return SOCKET_ERROR_BAD_ADDRESS;
     }
     socket_error_t err = _socket.api->recv_from(&_socket, buf, len, &addr, remote_port);
     remote_addr->setAddr(&addr);
@@ -197,13 +194,11 @@ socket_error_t Socket::send(const void * buf, const size_t len)
     }
     return _socket.api->send(&_socket, buf, len);
 }
+
 socket_error_t Socket::send_to(const void * buf, const size_t len, const SocketAddr *remote_addr, uint16_t remote_port)
 {
-    if (_socket.impl == NULL) {
+    if (_socket.impl == NULL || remote_addr == NULL) {
         return SOCKET_ERROR_NULL_PTR;
-    }
-    if (remote_addr == NULL) {
-        return SOCKET_ERROR_BAD_ADDRESS;
     }
     return _socket.api->send_to(&_socket, buf, len, remote_addr->getAddr(), remote_port);
 }
@@ -217,11 +212,8 @@ bool Socket::isConnected() const {
 
 socket_error_t Socket::getLocalAddr(SocketAddr *addr) const
 {
-    if (_socket.impl == NULL) {
+    if (_socket.impl == NULL || addr == NULL) {
         return SOCKET_ERROR_NULL_PTR;
-    }
-    if (addr == NULL) {
-        return SOCKET_ERROR_BAD_ADDRESS;
     }
     return _socket.api->get_local_addr(&_socket, addr->getAddr());
 }
@@ -234,11 +226,8 @@ socket_error_t Socket::getLocalPort(uint16_t *port) const
 }
 socket_error_t Socket::getRemoteAddr(SocketAddr *addr) const
 {
-    if (_socket.impl == NULL) {
+    if (_socket.impl == NULL || addr == NULL) {
         return SOCKET_ERROR_NULL_PTR;
-    }
-    if (addr == NULL) {
-        return SOCKET_ERROR_BAD_ADDRESS;
     }
     return _socket.api->get_remote_addr(&_socket, addr->getAddr());
 }

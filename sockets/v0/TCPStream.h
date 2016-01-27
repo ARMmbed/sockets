@@ -68,7 +68,8 @@ public:
      * @param[in] address The remote host to connect to
      * @param[in] port The remote port to connect to
      * @param[in] onConnect
-     * @return SOCKET_ERROR_NONE on success, or an error code on failure
+     * @retval SOCKET_ERROR_NONE on success
+     * @return Error code on failure
      */
     virtual socket_error_t connect(const SocketAddr &address, const uint16_t port,
             const ConnectHandler_t &onConnect);
