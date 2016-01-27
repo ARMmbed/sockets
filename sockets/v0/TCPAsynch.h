@@ -31,7 +31,19 @@ protected:
     ~TCPAsynch();
 
 public:
+
+   /**
+     * Open the socket.
+     * Instantiates and initializes the underlying socket. Receive is started immediately after
+     * the socket is opened.
+     * @param[in] af Address family (SOCKET_AF_INET4 or SOCKET_AF_INET6), currently only IPv4 is supported
+     * @retval SOCKET_ERROR_NONE on success
+     * @retval SOCKET_ERROR_BAD_STACK if there is no valid underlying network stack
+     * @retval SOCKET_ERROR_BAD_FAMILY if an invalid Address is supplied
+     * @return Error code on failure
+     */
     virtual socket_error_t open(const socket_address_family_t af);
+
 protected:
     static minar::callback_handle_t _tick_handle;
     // uintptr_t is used to guarantee that there will always be a large enough

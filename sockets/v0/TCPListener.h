@@ -51,13 +51,15 @@ public:
      *  To reject a connection, the event handler needs to set the reject flag in the event.
      * @param[in] listenHandler The event handler to call when an incoming connection arrives
      * @param[in] backlog The number of connection requests to keep in the backlog
-     * @return SOCKET_ERROR_NONE on success, or an error code on failure
+     * @retval SOCKET_ERROR_NONE on success
+     * @return Error code on failure
      */
     socket_error_t start_listening(IncomingHandler_t listenHandler, uint32_t backlog = 0);
     /**
      * Stop listening for incoming connections
      * After this call, the server will reject incoming connections until start_listening is called again
-     * @return SOCKET_ERROR_NONE on success, or an error code on failure
+     * @retval SOCKET_ERROR_NONE on success
+     * @return Error code on failure
      */
     socket_error_t stop_listening();
 

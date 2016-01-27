@@ -66,6 +66,7 @@ public:
      * @param[in] address The domain name to resolve
      * @param[in] onDNS The handler to call when the name is resolved
      * @retval SOCKET_ERROR_NONE on success
+     * @retval SOCKET_ERROR_NULL_PTR if address is NULL
      * @return Error code on failure
      */
     virtual socket_error_t resolve(const char* address, const DNSHandler_t &onDNS);
@@ -78,6 +79,7 @@ public:
      * @param[in] pf Protocol family (SOCKET_DGRAM or SOCKET_STREAM)
      * @retval SOCKET_ERROR_NONE on success
      * @retval SOCKET_ERROR_BAD_STACK if there is no valid underlying network stack
+     * @retval SOCKET_ERROR_BAD_FAMILY if an invalid Address or Protocol family is supplied
      * @return Error code on failure
      */
     virtual socket_error_t open(const socket_address_family_t af, const socket_proto_family_t pf);
@@ -86,11 +88,13 @@ public:
      * Binds the socket's local address and IP.
      * 0.0.0.0 is accepted as a local address if only the port is meant to be bound.
      * The behaviour of bind("0.0.0.0",...) is undefined where two or more stacks are in use.
+     * Specifying a port value of 0, will instruct the stack to allocate an available port
+     * automatically.
      *
      * @param[in] address The string representation of the address to bind
      * @param[in] port The local port to bind
      * @retval SOCKET_ERROR_NONE on success
-     * @retval SOCKET_ERROR_NULL_PTR if the socket has not been opened
+     * @retval SOCKET_ERROR_NULL_PTR if the socket has not been opened or the address is NULL
      * @return Error code on failure
      */
     virtual socket_error_t bind(const char *address, const uint16_t port);
@@ -101,7 +105,7 @@ public:
      * @param[in] address The address to bind
      * @param[in] port The local port to bind
      * @retval SOCKET_ERROR_NONE on success
-     * @retval SOCKET_ERROR_BAD_ADDRESS if the supplied address is NULL
+     * @retval SOCKET_ERROR_NULL_PTR if the supplied address is NULL
      * @return Error code on failure
      */
     virtual socket_error_t bind(const SocketAddr *address, const uint16_t port);
@@ -127,7 +131,7 @@ public:
      * to read but is updated with the actual number of bytes copied on success.  len is not changed on
      * failure
      * @retval SOCKET_ERROR_NONE on success
-     * @retval SOCKET_ERROR_NULL_PTR if the socket has not been opened or buf is NULL
+     * @retval SOCKET_ERROR_NULL_PTR if the socket has not been opened, buf is NULL or len is NULL
      * @return Error code on failure
      */
     virtual socket_error_t recv(void * buf, size_t *len);
@@ -142,8 +146,8 @@ public:
      * @param[out] remote_addr Pointer to an address structure to fill with the sender address
      * @param[out] remote_port Pointer to a uint16_t to fill with the sender port
      * @retval SOCKET_ERROR_NONE on success
-     * @retval SOCKET_ERROR_NULL_PTR if the socket has not been opened, buf is NULL or the
-     *                               remote_addr is NULL
+     * @retval SOCKET_ERROR_NULL_PTR if the socket has not been opened or any of the pointer arguments
+     *                               are NULL
      * @return Error code on failure
      */
     virtual socket_error_t recv_from(void * buf, size_t *len, SocketAddr *remote_addr, uint16_t *remote_port);

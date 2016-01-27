@@ -43,7 +43,9 @@ public:
      * Instantiates and initializes the underlying socket. Receive is started immediately after
      * the socket is opened.
      * @param[in] af Address family (SOCKET_AF_INET4 or SOCKET_AF_INET6), currently only IPv4 is supported
-     * @return SOCKET_ERROR_NONE on success, or an error code on failure
+     * @retval SOCKET_ERROR_NONE on success
+     * @retval SOCKET_ERROR_BAD_FAMILY if an invalid Address is supplied
+     * @return Error code on failure
      */
     socket_error_t inline open(const socket_address_family_t af)
     {
@@ -54,7 +56,9 @@ public:
      * This is an internal configuration API only.  No network traffic is generated.
      * @param[in] address The remote host to connect to
      * @param[in] port The remote port to connect to
-     * @return SOCKET_ERROR_NONE on success, or an error code on failure
+     * @retval SOCKET_ERROR_NONE on success
+     * @retval SOCKET_ERROR_NULL_PTR if address is NULL
+     * @return Error code on failure
      */
     socket_error_t connect(const SocketAddr *address, const uint16_t port);
 private:
