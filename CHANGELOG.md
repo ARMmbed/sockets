@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [v1.1.1]
+### Improved
+- Documentation now defines expected error codes
+- Error codes returned match documentation
+- Additional checks for failing conditions
+
+### Added
+- A new TCPStream constructor for use with ```accept()```
+- The previous TCPStream constructor used with ```accept()``` is now deprecated
+
 
 ## [v1.1.0]
 ### Improved
