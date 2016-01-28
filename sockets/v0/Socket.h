@@ -194,6 +194,7 @@ public:
      * destroyed (either with delete, or by going out of scope) after calling close.
      * Calling open on a closed socket can result in a memory leak.
      * @retval SOCKET_ERROR_NONE on success
+     * @retval SOCKET_ERROR_NULL_PTR if the socket has not been opened
      * @return Error code on failure
      */
     virtual socket_error_t close();
