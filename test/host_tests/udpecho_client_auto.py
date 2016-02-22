@@ -1,56 +1,38 @@
-# Copyright 2015 ARM Limited, All rights reserved
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+"""
+mbed SDK
+Copyright (c) 2011-2013 ARM Limited
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
 
 import sys
 import socket
-import logging
-from threading import Thread
 from sys import stdout
-from SocketServer import BaseRequestHandler, TCPServer
+from threading import Thread
+from SocketServer import BaseRequestHandler, UDPServer
 from mbed_host_tests import BaseHostTest
 
 
-class TCPEchoClientHandler(BaseRequestHandler):
+class UDPEchoClientHandler(BaseRequestHandler):
     def handle(self):
+        """ UDP packet handler. Echoes data back to sender's address.
         """
-        Handles a connection. Test starts by client(i.e. mbed) connecting to server.
-        This connection handler receives data and echoes back to the client util
-        {{end}} is received. Then it sits on recv() for client to terminate the
-        connection.
-
-        Note: reason for not echoing data back after receiving {{end}} is that send
-              fails raising a SocketError as client closes connection.
-        """
-        print ("HOST: TCPEchoClient_Handler: Connection received...")
-        while True:
-            try:
-                data = self.request.recv(1024)
-                if not data: break
-                print ('HOST: TCPEchoClient_Handler: \n%s\n' % data)
-
-                # If client finishes, sit on recv and terminate
-                # after client closes connection.
-                if '{{end}}' in data: continue
-
-                # echo data back to the client
-                self.request.sendall(data)
-            except Exception as e:
-                print ('HOST: TCPEchoClient_Handler: %s' % str(e))
-                break
+        data, sock = self.request
+        print data
+        sock.sendto(data, self.client_address)
 
 
-class TCPEchoClientTest(BaseHostTest):
+class UDPEchoClientTest(BaseHostTest):
 
     def __init__(self):
         """
@@ -78,24 +60,24 @@ class TCPEchoClientTest(BaseHostTest):
         s.close()
         return ip
 
-    def setup_tcp_server(self):
+    def setup_udp_server(self):
         """
-        sets up a TCP server for target to connect and send test data.
+        sets up a UDP server for target to connect and send test data.
 
         :return:
         """
         # !NOTE: There should mechanism to assert in the host test
         if self.SERVER_IP is None:
-            self.log("setup_tcp_server() called before determining server IP!")
+            self.log("setup_udp_server() called before determining server IP!")
             self.notify_complete(False)
 
         # Returning none will suppress host test from printing success code
-        self.server = TCPServer((self.SERVER_IP, self.SERVER_PORT), TCPEchoClientHandler)
+        self.server = UDPServer((self.SERVER_IP, self.SERVER_PORT), UDPEchoClientHandler)
         ip, port = self.server.server_address
         self.SERVER_PORT = port
         self.server.allow_reuse_address = True
-        self.log("HOST: Listening for TCP connections: " + self.SERVER_IP + ":" + str(self.SERVER_PORT))
-        self.server_thread = Thread(target=TCPEchoClientTest.server_thread_func, args=(self,))
+        self.log("HOST: Listening for UDP packets: " + self.SERVER_IP + ":" + str(self.SERVER_PORT))
+        self.server_thread = Thread(target=UDPEchoClientTest.server_thread_func, args=(self,))
         self.server_thread.start()
 
     @staticmethod
@@ -119,7 +101,7 @@ class TCPEchoClientTest(BaseHostTest):
         """
         self.target_ip = value
         self.SERVER_IP = self.find_interface_to_target_addr(self.target_ip)
-        self.setup_tcp_server()
+        self.setup_udp_server()
 
     def _callback_host_ip(self, key, value, timestamp):
         """

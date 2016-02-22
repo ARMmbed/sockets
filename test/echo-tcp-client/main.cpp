@@ -26,15 +26,6 @@
 #include "unity/unity.h"
 
 using namespace utest::v1;
-
-struct s_ip_address {
-    int ip_1;
-    int ip_2;
-    int ip_3;
-    int ip_4;
-};
-
-
 using namespace mbed::Sockets::v0;
 
 EthernetInterface eth;
@@ -80,7 +71,7 @@ public:
         
         err = _stream.resolve(host_addr,TCPStream::DNSHandler_t(this, &TCPEchoClient::onDNS));
         if (!TEST_EQ(err, SOCKET_ERROR_NONE)) {
-            printf("MBED: TCPClient unable to connect to %s:%d" NL, host_addr, port);
+            printf("MBED: TCPClient unable to resolve address %s" NL, host_addr);
             onError(&_stream, err);
         }
     }

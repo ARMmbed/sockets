@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 #include "mbed-drivers/mbed.h"
-#include "mbed-drivers/test_env.h"
 #include "sal/test/ctest_env.h"
 #include "sal/socket_api.h"
 #include <algorithm>
@@ -24,10 +23,15 @@
 #include "sal-stack-lwip/lwipv4_init.h"
 #include "minar/minar.h"
 #include "core-util/FunctionPointer.h"
+#include "greentea-client/test_env.h"
+#include "utest/utest.h"
+#include "unity/unity.h"
 
 #define CHECK(RC, STEP)       if (RC < 0) error(STEP": %d\r\n", RC)
 
+using namespace utest::v1;
 using namespace mbed::Sockets::v0;
+
 
 namespace {
     const int BUFFER_SIZE = 64;
@@ -57,7 +61,7 @@ void terminate(bool status, UDPEchoClient* client);
 
 char buffer[BUFFER_SIZE] = {0};
 int port = 0;
-UDPEchoClient *ec;
+UDPEchoClient *client;
 EthernetInterface eth;
 
 class UDPEchoClient {
@@ -67,11 +71,22 @@ public:
     {
         _usock.setOnError(UDPSocket::ErrorHandler_t(this, &UDPEchoClient::onError));
     }
+    ~UDPEchoClient(){
+        if (_usock.isConnected())
+            _usock.close();
+    }
     void start_test(char * host_addr, uint16_t port)
     {
         loop_ctr = 0;
         _port = port;
-        socket_error_t err = _usock.resolve(host_addr,UDPSocket::DNSHandler_t(this, &UDPEchoClient::onDNS));
+        
+        socket_error_t err = _usock.open(SOCKET_AF_INET4);
+        if (!TEST_EQ(err, SOCKET_ERROR_NONE)) {
+            printf("MBED: UDPClient unable to open socket" NL);
+            onError(&_usock, err);
+        }
+        
+        err = _usock.resolve(host_addr,UDPSocket::DNSHandler_t(this, &UDPEchoClient::onDNS));
         if(!TEST_EQ(err, SOCKET_ERROR_NONE)) {
             printf("MBED: Failed to resolve %s\r\n", host_addr);
             onError(&_usock, err);
@@ -80,7 +95,7 @@ public:
     void onError(Socket *s, socket_error_t err) {
         (void) s;
         printf("MBED: Socket Error: %s (%d)\r\n", socket_strerror(err), err);
-        minar::Scheduler::postCallback(fpterminate_t(terminate).bind(TEST_RESULT(),this));
+        minar::Scheduler::postCallback(fpterminate_t(terminate).bind(false,this));
     }
     void onDNS(Socket *s, struct socket_addr sa, const char * domain)
     {
@@ -92,7 +107,11 @@ public:
 
         /* TODO: add support for getting AF from addr */
         socket_error_t err = _usock.open(SOCKET_AF_INET4);
-        TEST_EQ(err, SOCKET_ERROR_NONE);
+        if (!TEST_EQ(err, SOCKET_ERROR_NONE))
+        {
+            printf("MBED: UDPClient failed to open UDP socket" NL);
+            onError(&_usock, err);
+        }
         /* Register the read handler */
         _usock.setOnReadable(UDPSocket::ReadableHandler_t(this, &UDPEchoClient::onRx));
         /* Send the query packet to the remote host */
@@ -116,11 +135,8 @@ public:
 
         }
         if ((rc == 0) && (loop_ctr >= MAX_ECHO_LOOPS)) {
-            if (notify_completion_str(TEST_RESULT(), buffer)) {
-                _usock.send_to(buffer, strlen(buffer), &_resolvedAddr, _port);
-                _usock.close();
-                minar::Scheduler::postCallback(fpterminate_t(terminate).bind(TEST_RESULT(),this));
-            }
+            _usock.send_to(buffer, strlen(buffer), &_resolvedAddr, _port);
+            minar::Scheduler::postCallback(fpterminate_t(terminate).bind(true,this));
         }
     }
     bool isDone() {
@@ -146,44 +162,85 @@ protected:
     volatile bool done;
 };
 
-void terminate(bool status, UDPEchoClient* client)
+void terminate(bool status, UDPEchoClient* )
 {
-    delete client;
-    eth.disconnect();
-    MBED_HOSTTEST_RESULT(status);
-}
-
-
-void app_start(int argc, char *argv[]) {
-    (void) argc;
-    (void) argv;
-    MBED_HOSTTEST_TIMEOUT(20);
-    MBED_HOSTTEST_SELECT(udpecho_client_auto);
-    MBED_HOSTTEST_DESCRIPTION(UDP echo client);
-    MBED_HOSTTEST_START("NET_6");
-    socket_error_t err = lwipv4_socket_init();
-    TEST_EQ(err, SOCKET_ERROR_NONE);
-
-    s_ip_address ip_addr = {0, 0, 0, 0};
-
-    printf("MBED: UDPCllient waiting for server IP and port...\r\n");
-    scanf("%d.%d.%d.%d:%d", &ip_addr.ip_1, &ip_addr.ip_2, &ip_addr.ip_3, &ip_addr.ip_4, &port);
-    printf("MBED: Address received: %d.%d.%d.%d:%d\r\n", ip_addr.ip_1, ip_addr.ip_2, ip_addr.ip_3, ip_addr.ip_4, port);
-
-    int rc = eth.init(); //Use DHCP
-    CHECK(rc, "eth init");
-
-    rc = eth.connect();
-    CHECK(rc, "connect");
-    printf("IP: %s\n", eth.getIPAddress());
-
-    ec = new UDPEchoClient(SOCKET_STACK_LWIP_IPV4);
-
-    printf("MBED: UDPClient IP Address is %s\r\n", eth.getIPAddress());
-    sprintf(buffer, "%d.%d.%d.%d", ip_addr.ip_1, ip_addr.ip_2, ip_addr.ip_3, ip_addr.ip_4);
-
-    {
-        mbed::util::FunctionPointer2<void, char *, uint16_t> fp(ec, &UDPEchoClient::start_test);
-        minar::Scheduler::postCallback(fp.bind(buffer, port));
+    if (client) {
+        printf("MBED: Test finished!");
+        delete client;
+        client = NULL;
+        eth.disconnect();
+        // utest has two different APIs for pass and fail.
+        if (status) {
+            Harness::validate_callback();
+        } else {
+            Harness::raise_failure(REASON_CASES);
+        }
     }
 }
+
+
+
+control_t test_echo_udp_client()
+{
+    socket_error_t err = lwipv4_socket_init();
+    TEST_EQ(err, SOCKET_ERROR_NONE);
+    
+    printf("MBED: Initializing ethernet connection." NL);
+    eth.init(); //Use DHCP
+    eth.connect();
+
+    printf("MBED: IP Address is %s" NL, eth.getIPAddress());
+    greentea_send_kv("target_ip", eth.getIPAddress());
+    
+    memset(buffer, 0, sizeof(buffer));
+    port = 0;
+    
+    printf("UDPClient waiting for server IP and port..." NL);
+    char recv_key[] = "host_port";
+    char port_value[] = "65325";
+    
+    greentea_send_kv("host_ip", " ");
+    TEST_ASSERT_TRUE(greentea_parse_kv(recv_key, buffer, sizeof(recv_key), sizeof(buffer)) != 0);
+    
+    greentea_send_kv("host_port", " ");
+    TEST_ASSERT_TRUE(greentea_parse_kv(recv_key, port_value, sizeof(recv_key), sizeof(port_value)) != 0);
+    
+    sscanf(port_value, "%d", &port);
+    
+    
+    client = new UDPEchoClient(SOCKET_STACK_LWIP_IPV4);
+
+    {
+        mbed::util::FunctionPointer2<void, char *, uint16_t> fp(client, &UDPEchoClient::start_test);
+        minar::Scheduler::postCallback(fp.bind(buffer, port));
+    }
+    return CaseTimeout(15000);
+}
+
+
+// Cases --------------------------------------------------------------------------------------------------------------
+Case cases[] = {
+    Case("Test Echo UDP Client", test_echo_udp_client),
+};
+
+status_t greentea_setup(const size_t number_of_cases)
+{
+    // Handshake with greentea
+    // Host test timeout should be more than target utest timeout to let target cleanup the test and send test summary.
+    GREENTEA_SETUP(20, "udpecho_client_auto"); 
+    return greentea_test_setup_handler(number_of_cases);
+}
+
+void greentea_teardown(const size_t passed, const size_t failed, const failure_t failure)
+{
+    greentea_test_teardown_handler(passed, failed, failure);
+    GREENTEA_TESTSUITE_RESULT(failed == 0);
+}
+
+Specification specification(greentea_setup, cases, greentea_teardown);
+
+void app_start(int, char*[])
+{
+    Harness::run(specification);
+}
+
