@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import sys
+import select
 import socket
 import logging
 from threading import Thread
@@ -33,9 +34,9 @@ class TCPEchoClientHandler(BaseRequestHandler):
               fails raising a SocketError as client closes connection.
         """
         print ("HOST: TCPEchoClient_Handler: Connection received...")
-        while True:
+        while self.server.isrunning():
             try:
-                data = self.request.recv(1024)
+                data = self.recv()
                 if not data: break
                 print ('HOST: TCPEchoClient_Handler: \n%s\n' % data)
 
@@ -44,10 +45,63 @@ class TCPEchoClientHandler(BaseRequestHandler):
                 if '{{end}}' in data: continue
 
                 # echo data back to the client
-                self.request.sendall(data)
+                self.send(data)
             except Exception as e:
                 print ('HOST: TCPEchoClient_Handler: %s' % str(e))
                 break
+        print 'Connection finshed'
+
+    def recv(self):
+        """
+        Try to receive until server is shutdown
+        """
+        while self.server.isrunning():
+            rl, wl, xl  = select.select([self.request], [], [], 1)
+            if len(rl):
+                return self.request.recv(1024)
+
+    def send(self, data):
+        """
+        Try to send until server is shutdown
+        """
+        while self.server.isrunning():
+            rl, wl, xl  = select.select([], [self.request], [], 1)
+            if len(wl):
+                self.request.sendall(data)
+                break
+
+
+class TCPServerWrapper(TCPServer):
+    """
+    Wrapper over TCP server to implement server initiated shutdown.
+    Adds a flag:= running that a request handler can check and come out of
+    recv loop when shutdown is called.
+    """
+
+    def __init__(self, addr, request_handler):
+        # hmm, TCPServer is not sub-classed from object!
+        if issubclass(TCPServer, object):
+            super(TCPServerWrapper, self).__init__(addr, request_handler)
+        else:
+            TCPServer.__init__(self, addr, request_handler)
+        self.running = False
+
+    def serve_forever(self):
+        self.running = True
+        if issubclass(TCPServer, object):
+            super(TCPServerWrapper, self).serve_forever()
+        else:
+            TCPServer.serve_forever(self)
+
+    def shutdown(self):
+        self.running = False
+        if issubclass(TCPServer, object):
+            super(TCPServerWrapper, self).shutdown()
+        else:
+            TCPServer.shutdown(self)
+
+    def isrunning(self):
+        return self.running
 
 
 class TCPEchoClientTest(BaseHostTest):
@@ -90,7 +144,7 @@ class TCPEchoClientTest(BaseHostTest):
             self.notify_complete(False)
 
         # Returning none will suppress host test from printing success code
-        self.server = TCPServer((self.SERVER_IP, self.SERVER_PORT), TCPEchoClientHandler)
+        self.server = TCPServerWrapper((self.SERVER_IP, self.SERVER_PORT), TCPEchoClientHandler)
         ip, port = self.server.server_address
         self.SERVER_PORT = port
         self.server.allow_reuse_address = True
