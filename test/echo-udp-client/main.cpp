@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 #include "mbed-drivers/mbed.h"
-#include "sal/test/ctest_env.h"
 #include "sal/socket_api.h"
 #include <algorithm>
 #include "sockets/UDPSocket.h"
@@ -37,13 +36,6 @@ namespace {
     const int BUFFER_SIZE = 64;
     const int MAX_ECHO_LOOPS = 100;
     const char ASCII_MAX = '~' - ' ';
-
-    struct s_ip_address {
-        int ip_1;
-        int ip_2;
-        int ip_3;
-        int ip_4;
-    };
 }
 
 char char_rand() {
@@ -81,19 +73,14 @@ public:
         _port = port;
         
         socket_error_t err = _usock.open(SOCKET_AF_INET4);
-        if (!TEST_EQ(err, SOCKET_ERROR_NONE)) {
-            printf("MBED: UDPClient unable to open socket" NL);
-            onError(&_usock, err);
-        }
-        
+        TEST_ASSERT_EQUAL_MESSAGE(SOCKET_ERROR_NONE, err, "MBED: UDPClient unable to open socket" NL);
+        printf("MBED: Trying to resolve address %s" NL, host_addr);
         err = _usock.resolve(host_addr,UDPSocket::DNSHandler_t(this, &UDPEchoClient::onDNS));
-        if(!TEST_EQ(err, SOCKET_ERROR_NONE)) {
-            printf("MBED: Failed to resolve %s\r\n", host_addr);
-            onError(&_usock, err);
-        }
+        TEST_ASSERT_EQUAL_MESSAGE(SOCKET_ERROR_NONE, err, "MBED: UDPClient failed to resolve host server address" NL);
     }
     void onError(Socket *s, socket_error_t err) {
         (void) s;
+        TEST_ASSERT_NOT_EQUAL(SOCKET_ERROR_NONE, err);
         printf("MBED: Socket Error: %s (%d)\r\n", socket_strerror(err), err);
         minar::Scheduler::postCallback(fpterminate_t(terminate).bind(false,this));
     }
@@ -107,50 +94,39 @@ public:
 
         /* TODO: add support for getting AF from addr */
         socket_error_t err = _usock.open(SOCKET_AF_INET4);
-        if (!TEST_EQ(err, SOCKET_ERROR_NONE))
-        {
-            printf("MBED: UDPClient failed to open UDP socket" NL);
-            onError(&_usock, err);
-        }
+        TEST_ASSERT_EQUAL_MESSAGE(SOCKET_ERROR_NONE, err, "MBED: UDPClient failed to open socket!" NL);
+        
         /* Register the read handler */
         _usock.setOnReadable(UDPSocket::ReadableHandler_t(this, &UDPEchoClient::onRx));
         /* Send the query packet to the remote host */
-        err = send_test();
-        TEST_EQ(err, SOCKET_ERROR_NONE);
+        send_test();
     }
     void onRx(Socket *s)
     {
         (void) s;
         unsigned int n = sizeof(buffer);
         socket_error_t err = _usock.recv(buffer, &n);
-        TEST_EQ(err, SOCKET_ERROR_NONE);
+        TEST_ASSERT_EQUAL_MESSAGE(SOCKET_ERROR_NONE, err, "MBED: UDPClient failed to recv data!" NL);
 
         int rc = memcmp(buffer, out_buffer, min(BUFFER_SIZE,n));
-        TEST_EQ(rc, 0);
+        TEST_ASSERT_EQUAL_MESSAGE(0, rc, "MBED: UDPClient round trip data validation error!" NL);
 
         loop_ctr++;
-        if (!rc && (loop_ctr < MAX_ECHO_LOOPS)) {
-            err = send_test();
-            TEST_EQ(err, SOCKET_ERROR_NONE);
+        if (loop_ctr < MAX_ECHO_LOOPS) {
+            send_test();
 
         }
-        if ((rc == 0) && (loop_ctr >= MAX_ECHO_LOOPS)) {
+        if (loop_ctr >= MAX_ECHO_LOOPS) {
             _usock.send_to(buffer, strlen(buffer), &_resolvedAddr, _port);
             minar::Scheduler::postCallback(fpterminate_t(terminate).bind(true,this));
         }
     }
-    bool isDone() {
-        return done;
-    }
-    bool isError() {
-        return !TEST_RESULT();
-    }
 
 protected:
-    socket_error_t send_test() {
+    void send_test() {
         std::generate(out_buffer, out_buffer + BUFFER_SIZE, char_rand);
         socket_error_t err = _usock.send_to(out_buffer, sizeof(BUFFER_SIZE), &_resolvedAddr, _port);
-        return err;
+        TEST_ASSERT_EQUAL_MESSAGE(SOCKET_ERROR_NONE, err, "MBED: UDPClient failed to send data!" NL);
     }
 protected:
     UDPSocket _usock;
@@ -169,12 +145,8 @@ void terminate(bool status, UDPEchoClient* )
         delete client;
         client = NULL;
         eth.disconnect();
-        // utest has two different APIs for pass and fail.
-        if (status) {
-            Harness::validate_callback();
-        } else {
-            Harness::raise_failure(REASON_CASES);
-        }
+        TEST_ASSERT_TRUE_MESSAGE(status, "MBED: test failed!");
+        Harness::validate_callback();
     }
 }
 
@@ -183,10 +155,11 @@ void terminate(bool status, UDPEchoClient* )
 control_t test_echo_udp_client()
 {
     socket_error_t err = lwipv4_socket_init();
-    TEST_EQ(err, SOCKET_ERROR_NONE);
+    TEST_ASSERT_EQUAL_MESSAGE(SOCKET_ERROR_NONE, err, "Failed to init LWIPv4 socket!");
     
     printf("MBED: Initializing ethernet connection." NL);
-    eth.init(); //Use DHCP
+    //Use DHCP
+    TEST_ASSERT_EQUAL_MESSAGE(0, eth.init(), "Failed to init LWIPv4 socket!");
     eth.connect();
 
     printf("MBED: IP Address is %s" NL, eth.getIPAddress());
@@ -200,10 +173,10 @@ control_t test_echo_udp_client()
     char port_value[] = "65325";
     
     greentea_send_kv("host_ip", " ");
-    TEST_ASSERT_TRUE(greentea_parse_kv(recv_key, buffer, sizeof(recv_key), sizeof(buffer)) != 0);
+    TEST_ASSERT_NOT_EQUAL_MESSAGE(0, greentea_parse_kv(recv_key, buffer, sizeof(recv_key), sizeof(buffer)), "MBED: Failed to recv/parse key value from host!");
     
     greentea_send_kv("host_port", " ");
-    TEST_ASSERT_TRUE(greentea_parse_kv(recv_key, port_value, sizeof(recv_key), sizeof(port_value)) != 0);
+    TEST_ASSERT_NOT_EQUAL_MESSAGE(0, greentea_parse_kv(recv_key, port_value, sizeof(recv_key), sizeof(port_value)), "MBED: Failed to recv/parse key value from host!");
     
     sscanf(port_value, "%d", &port);
     
@@ -214,7 +187,7 @@ control_t test_echo_udp_client()
         mbed::util::FunctionPointer2<void, char *, uint16_t> fp(client, &UDPEchoClient::start_test);
         minar::Scheduler::postCallback(fp.bind(buffer, port));
     }
-    return CaseTimeout(15000);
+    return CaseTimeout(25000);
 }
 
 
@@ -227,7 +200,7 @@ status_t greentea_setup(const size_t number_of_cases)
 {
     // Handshake with greentea
     // Host test timeout should be more than target utest timeout to let target cleanup the test and send test summary.
-    GREENTEA_SETUP(20, "udpecho_client_auto"); 
+    GREENTEA_SETUP(30, "udpecho_client_auto"); 
     return greentea_test_setup_handler(number_of_cases);
 }
 

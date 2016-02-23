@@ -16,7 +16,6 @@
  */
 #include "mbed-drivers/mbed.h"
 #include "sockets/TCPStream.h"
-#include "sal/test/ctest_env.h"
 #include "sal-stack-lwip/lwipv4_init.h"
 #include "sal-iface-eth/EthernetInterface.h"
 #include "minar/minar.h"
@@ -53,6 +52,7 @@ public:
     }
     void onError(Socket *s, socket_error_t err) {
         (void) s;
+        TEST_ASSERT_NOT_EQUAL_MESSAGE(SOCKET_ERROR_NONE, err, socket_strerror(err));
         printf("MBED: Socket Error: %s (%d)\r\n", socket_strerror(err), err);
         _done = true;
         minar::Scheduler::postCallback(fpterminate_t(terminate).bind(false,this));
@@ -64,16 +64,10 @@ public:
         _done = false;
         _disconnected = true;
         socket_error_t err = _stream.open(SOCKET_AF_INET4);
-        if (!TEST_EQ(err, SOCKET_ERROR_NONE)) {
-            printf("MBED: TCPClient unable to open socket" NL);
-            onError(&_stream, err);
-        }
+        TEST_ASSERT_EQUAL_MESSAGE(SOCKET_ERROR_NONE, err, "MBED: Failed to open socket!");
         
         err = _stream.resolve(host_addr,TCPStream::DNSHandler_t(this, &TCPEchoClient::onDNS));
-        if (!TEST_EQ(err, SOCKET_ERROR_NONE)) {
-            printf("MBED: TCPClient unable to resolve address %s" NL, host_addr);
-            onError(&_stream, err);
-        }
+        TEST_ASSERT_EQUAL_MESSAGE(SOCKET_ERROR_NONE, err, "MBED: Failed to resolve host address!");
     }
     void onDNS(Socket *s, struct socket_addr sa, const char* domain)
     {
@@ -89,10 +83,7 @@ public:
         _stream.setOnDisconnect(TCPStream::DisconnectHandler_t(this, &TCPEchoClient::onDisconnect));
         /* Send the query packet to the remote host */
         socket_error_t err = _stream.connect(_resolvedAddr, _port, TCPStream::ConnectHandler_t(this,&TCPEchoClient::onConnect));
-        if(!TEST_EQ(err, SOCKET_ERROR_NONE)) {
-            printf("MBED: Expected %d, got %d (%s)\r\n", SOCKET_ERROR_NONE, err, socket_strerror(err));
-            onError(&_stream, err);
-        }
+        TEST_ASSERT_EQUAL_MESSAGE(SOCKET_ERROR_NONE, err, "MBED: Failed to connect host server!");
     }
     void onConnect(TCPStream *s)
     {
@@ -101,33 +92,27 @@ public:
         _unacked = sizeof(out_buffer) - 1;
         printf ("MBED: Sending (%d bytes) to host: %s" NL, _unacked, out_buffer);
         socket_error_t err = _stream.send(out_buffer, sizeof(out_buffer) - 1);
-
-        if (!TEST_EQ(err, SOCKET_ERROR_NONE)) {
-            printf("MBED: TCPClient unable to send data!" NL);
-            onError(&_stream, err);
-        }
+        TEST_ASSERT_EQUAL_MESSAGE(SOCKET_ERROR_NONE, err, "MBED: TCPClient failed to send data!");
     }
     void onRx(Socket* s)
     {
         (void) s;
         size_t n = sizeof(buffer)-1;
         socket_error_t err = _stream.recv(buffer, &n);
-        TEST_EQ(err, SOCKET_ERROR_NONE);
+        TEST_ASSERT_EQUAL_MESSAGE(SOCKET_ERROR_NONE, err, "MBED: TCPClient failed to recv data!");
+        
         buffer[n] = 0;
         printf ("MBED: Rx (%d bytes) from host: %s" NL, n, buffer);
         if (!_done && n > 0)
         {
             int rc = strncmp(out_buffer, buffer, sizeof(out_buffer) - 1);
-            if (TEST_EQ(rc, 0)) {
-                _unacked += sizeof(out_success) - 1;
-                printf ("MBED: Sending (%d bytes) to host: %s" NL, _unacked, out_success);
-                err = _stream.send(out_success, sizeof(out_success) - 1);
-                _done = true;
-                if (!TEST_EQ(err, SOCKET_ERROR_NONE)) {
-                    printf("MBED: TCPClient unable to send data!" NL);
-                    onError(&_stream, err);
-                }
-            }
+            TEST_ASSERT_EQUAL_MESSAGE(0, rc, "MBED: TCPClient round trip data validation failed!");
+
+            _unacked += sizeof(out_success) - 1;
+            printf ("MBED: Sending (%d bytes) to host: %s" NL, _unacked, out_success);
+            err = _stream.send(out_success, sizeof(out_success) - 1);
+            _done = true;
+            TEST_ASSERT_EQUAL_MESSAGE(SOCKET_ERROR_NONE, err, "MBED: TCPClient failed to send data!");
         }
         if (!_done) {
             // Failed to validate rceived data. Terminating...
@@ -164,22 +149,17 @@ void terminate(bool status, TCPEchoClient* )
         delete client;
         client = NULL;
         eth.disconnect();
-        // utest has two different APIs for pass and fail.
-        if (status) {
-            Harness::validate_callback();
-        } else {
-            Harness::raise_failure(REASON_CASES);
-        }
+        TEST_ASSERT_TRUE_MESSAGE(status, "MBED: test failed!");
+        Harness::validate_callback();
     }
 }
-
 
 control_t test_echo_tcp_client()
 {
     socket_error_t err = lwipv4_socket_init();
-    TEST_EQ(err, SOCKET_ERROR_NONE);
+    TEST_ASSERT_EQUAL(SOCKET_ERROR_NONE, err);
     
-    eth.init(); //Use DHCP
+    TEST_ASSERT_EQUAL(0, eth.init()); //Use DHCP
     eth.connect();
 
     printf("TCPClient IP Address is %s" NL, eth.getIPAddress());
@@ -193,10 +173,10 @@ control_t test_echo_tcp_client()
     char port_value[] = "65325";
     
     greentea_send_kv("host_ip", " ");
-    TEST_ASSERT_TRUE(greentea_parse_kv(recv_key, buffer, sizeof(recv_key), sizeof(buffer)) != 0);
+    TEST_ASSERT_NOT_EQUAL_MESSAGE(0, greentea_parse_kv(recv_key, buffer, sizeof(recv_key), sizeof(buffer)), "MBED: Failed to recv/parse key value from host test!");
     
     greentea_send_kv("host_port", " ");
-    TEST_ASSERT_TRUE(greentea_parse_kv(recv_key, port_value, sizeof(recv_key), sizeof(port_value)) != 0);
+    TEST_ASSERT_NOT_EQUAL_MESSAGE(0, greentea_parse_kv(recv_key, port_value, sizeof(recv_key), sizeof(port_value)), "MBED: Failed to recv/parse key value from host test!");
     
     sscanf(port_value, "%d", &port);
     
@@ -207,6 +187,7 @@ control_t test_echo_tcp_client()
         mbed::util::FunctionPointer2<void, char *, uint16_t> fp(client, &TCPEchoClient::start_test);
         minar::Scheduler::postCallback(fp.bind(buffer, port));
     }
+    
     return CaseTimeout(15000);
 }
 
@@ -223,13 +204,7 @@ status_t greentea_setup(const size_t number_of_cases)
     return greentea_test_setup_handler(number_of_cases);
 }
 
-void greentea_teardown(const size_t passed, const size_t failed, const failure_t failure)
-{
-    greentea_test_teardown_handler(passed, failed, failure);
-    GREENTEA_TESTSUITE_RESULT(failed == 0);
-}
-
-Specification specification(greentea_setup, cases, greentea_teardown);
+Specification specification(greentea_setup, cases);
 
 void app_start(int, char*[])
 {
