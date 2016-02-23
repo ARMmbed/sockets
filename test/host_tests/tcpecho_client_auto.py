@@ -19,7 +19,7 @@ import logging
 from threading import Thread
 from sys import stdout
 from SocketServer import BaseRequestHandler, TCPServer
-from mbed_host_tests import BaseHostTest
+from mbed_host_tests import BaseHostTest, event_callback
 
 
 class TCPEchoClientHandler(BaseRequestHandler):
@@ -162,6 +162,7 @@ class TCPEchoClientTest(BaseHostTest):
         """
         this.server.serve_forever()
 
+    @event_callback("target_ip")
     def _callback_target_ip(self, key, value, timestamp):
         """
         Callback to handle reception of target's IP address.
@@ -175,6 +176,7 @@ class TCPEchoClientTest(BaseHostTest):
         self.SERVER_IP = self.find_interface_to_target_addr(self.target_ip)
         self.setup_tcp_server()
 
+    @event_callback("host_ip")
     def _callback_host_ip(self, key, value, timestamp):
         """
         Callback for request for host IP Addr
@@ -182,16 +184,12 @@ class TCPEchoClientTest(BaseHostTest):
         """
         self.send_kv("host_ip", self.SERVER_IP)
 
+    @event_callback("host_port")
     def _callback_host_port(self, key, value, timestamp):
         """
         Callback for request for host port
         """
         self.send_kv("host_port", self.SERVER_PORT)
-
-    def setup(self):
-        self.register_callback("target_ip", self._callback_target_ip)
-        self.register_callback("host_ip", self._callback_host_ip)
-        self.register_callback("host_port", self._callback_host_port)
 
     def teardown(self):
         if self.server:
