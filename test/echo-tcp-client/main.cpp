@@ -105,9 +105,8 @@ public:
         printf ("MBED: Rx (%d bytes) from host: %s" NL, n, buffer);
         if (!_done && n > 0)
         {
-            int rc = strncmp(out_buffer, buffer, sizeof(out_buffer) - 1);
-            TEST_ASSERT_EQUAL_MESSAGE(0, rc, "MBED: TCPClient round trip data validation failed!");
-
+            TEST_ASSERT_EQUAL_STRING_LEN_MESSAGE(out_buffer, buffer, n, "MBED: TCPClient round trip data validation failed!");
+            
             _unacked += sizeof(out_success) - 1;
             printf ("MBED: Sending (%d bytes) to host: %s" NL, _unacked, out_success);
             err = _stream.send(out_success, sizeof(out_success) - 1);
