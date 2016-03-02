@@ -21,7 +21,7 @@
     "minar": "^1.0.0"
   },
   "testDependencies": {
-    "mbed-drivers": "~0.12.1",
+    "mbed-drivers": "~1.0.0",
     "unity": "^2.0.1",
     "greentea-client": "^0.1.4"
   },
