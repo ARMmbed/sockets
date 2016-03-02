@@ -23,7 +23,7 @@
   "testDependencies": {
     "mbed-drivers": "^1.0.0",
     "unity": "^2.0.1",
-    "greentea-client": "^0.1.4"
+    "greentea-client": "~0.1.4"
   },
   "scripts": {
     "testReporter": [
