@@ -37,7 +37,7 @@ public:
     /**
      * UDP Socket destructor
      */
-    ~UDPSocket();
+    virtual ~UDPSocket();
     /**
      * Open a UDP socket
      * Instantiates and initializes the underlying socket. Receive is started immediately after
@@ -62,7 +62,7 @@ public:
      */
     socket_error_t connect(const SocketAddr *address, const uint16_t port);
 private:
-    socket_error_t open(const socket_address_family_t af, const socket_proto_family_t pf);
+    virtual socket_error_t open(const socket_address_family_t af, const socket_proto_family_t pf);
 
 };
 } // namespace v0
