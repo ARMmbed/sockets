@@ -34,9 +34,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - SocketAddr now interprets text addresses into internal representation with the setAddr API
 - Added an API to enable/disable Nagle's algorithm on TCP Streams
 
-[Unreleased] https://github.com/ARMmbed/sockets/compare/v1.1.4...HEAD
-[v1.1.4] https://github.com/ARMmbed/sockets/compare/v1.1.3...v1.1.4
-[v1.1.3] https://github.com/ARMmbed/sockets/compare/v1.1.2...v1.1.3
-[v1.1.2] https://github.com/ARMmbed/sockets/compare/v1.1.1...v1.1.2
-[v1.1.1] https://github.com/ARMmbed/sockets/compare/v1.1.0...v1.1.1
-[v1.1.0] https://github.com/ARMmbed/sockets/compare/v1.0.2...v1.1.0
+[Unreleased]: https://github.com/ARMmbed/sockets/compare/v1.1.4...HEAD
+[v1.1.4]: https://github.com/ARMmbed/sockets/compare/v1.1.3...v1.1.4
+[v1.1.3]: https://github.com/ARMmbed/sockets/compare/v1.1.2...v1.1.3
+[v1.1.2]: https://github.com/ARMmbed/sockets/compare/v1.1.1...v1.1.2
+[v1.1.1]: https://github.com/ARMmbed/sockets/compare/v1.1.0...v1.1.1
+[v1.1.0]: https://github.com/ARMmbed/sockets/compare/v1.0.2...v1.1.0
