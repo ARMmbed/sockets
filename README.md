@@ -54,7 +54,7 @@ Send some data
 ```C++
 s.send(data, dlen);
 ```
-Recieve some data
+Receive some data
 ```C++
 s.setOnReadable(onRecv);
 ```
